@@ -16,3 +16,12 @@ class Artist(object):
         self.gender = self.gender_conversion[parts[12]]
         self._unknown_2 = parts[13]
         self.last_update = parts[14]
+
+
+class Recording(object):
+    def __init__(self, line):
+        parts = line.split('\t')
+        self.recording_id = parts[0]
+        self.recording_uuid = parts[1]
+        self.name = parts[2]
+        # The rest of the stuff is realy not interesting (like duration or things like that)
