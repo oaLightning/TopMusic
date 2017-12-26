@@ -5,7 +5,6 @@ CREATE TABLE Songs (
 	song_id INT,
 	artist_id INT,
 	name VARCHAR(100),
-	genre INT,
 	release_date DATE,
 	PRIMARY KEY (song_id)
 );
@@ -16,7 +15,6 @@ CREATE TABLE Artist (
 	source_contry INT,
 	is_solo BIT(1),
 	PRIMARY KEY (artist_id),
-	FOREIGN KEY (artist_id) REFERENCES Artist(artist_id)
 );
 
 CREATE TABLE Chart (
