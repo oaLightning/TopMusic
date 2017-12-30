@@ -2,7 +2,7 @@ CREATE SCHEMA `top_music`;
 USE top_music;
 
 CREATE TABLE Songs (
-	song_id INT,
+	song_id INT NOT NULL AUTO_INCREMENT,
 	artist_id INT,
 	name VARCHAR(100),
 	release_date DATE,
@@ -10,10 +10,11 @@ CREATE TABLE Songs (
 );
 
 CREATE TABLE Artist (
-	artist_id INT,
+	artist_id INT NOT NULL AUTO_INCREMENT,
 	artist_name VARCHAR(50),
 	source_contry INT,
 	is_solo BIT(1),
+	mb_id VARCHAR(36)
 	PRIMARY KEY (artist_id),
 );
 
@@ -30,8 +31,8 @@ CREATE INDEX chart_song_idx ON Chart(song_id);
 CREATE INDEX chart_artist_idx ON Chart(artist_id);
 
 CREATE TABLE RelatedArtists (
-	solo INT,
-	band INT,
+	solo INT NOT NULL,
+	band INT NOT NULL,
 	FOREIGN KEY (solo) REFERENCES Artist(artist_id),
 	FOREIGN KEY (band) REFERENCES Artist(artist_id)
 );
@@ -44,8 +45,8 @@ CREATE TABLE Lyrics (
 	FOREIGN KEY (song_id) REFERENCES Songs(song_id)
 );
 
-CREATE TABLE Contries (
-	country_id INT,
+CREATE TABLE Countries (
+	country_id INT NOT NULL AUTO_INCREMENT,
 	country_name VARCHAR(64),
 	PRIMARY KEY (country_id)
 );
