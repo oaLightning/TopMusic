@@ -17,6 +17,7 @@ CREATE TABLE Artist (
 	mb_id VARCHAR(36)
 	PRIMARY KEY (artist_id),
 );
+CREATE INDEX mb_id_idx on Artist(mb_id);
 
 CREATE TABLE Chart (
 	chart_date DATE,

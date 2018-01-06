@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime
 from dateutil.parser import parse
+from contextlib import contextmanager
 
 import mysql.connector
 
@@ -19,28 +20,32 @@ mb.set_useragent(
     "https://github.com/oaLightning/TopMusic",
 )
 
-def run_insert(query, values, return_new_row):
+def db_cursor(commit_in_the_end):
     cnx = mysql.connector.connect(user=MYSQL_USER, database=MYSQL_DB_NAME, password=MYSQL_PASSWORD)
     cursor = cnx.cursor()
-    cursor.execute(query, values)
-    if return_new_row:
-        last_row_id = cursor.lastrowid
-    cnx.commit()
-    cursor.close()
-    cnx.close()
+    try:
+        yield cursor, cnx
+    finally:
+        if commit_in_the_end:
+            cnx.commit()
+        cursor.close()
+        cnx.close()
+
+def run_insert(query, values, return_new_row):
+    with db_cursor(True) as cursor:
+        cursor.execute(query, values)
+        if return_new_row:
+            last_row_id = cursor.lastrowid
     if return_new_row:
         return last_row_id
 
 def find_in_db(query, values):
-    cnx = mysql.connector.connect(user=MYSQL_USER, database=MYSQL_DB_NAME, password=MYSQL_PASSWORD)
-    cursor = cnx.cursor()
-    cursor.execute(query, values)
-    if 0 == cursor.rowcount:
-        return False
-    assert 1 = cursor.rowcount, 'Got more rows than expected for query {}, {}, {}'.format(query, values, cursor.rowcount)
-    found_id = cursor.next()
-    cursor.close()
-    cnx.close()
+    with db_cursor(False) as cursor:
+        cursor.execute(query, values)
+        if 0 == cursor.rowcount:
+            return False
+        assert 1 = cursor.rowcount, 'Got more rows than expected for query {}, {}, {}'.format(query, values, cursor.rowcount)
+        found_id = cursor.next()
     return found_id
 
 def insert_artist(artist_name, is_solo, country_code, mb_id):
@@ -66,6 +71,15 @@ def artist_in_db(artist_name):
 def country_in_db(country_name):
     query = 'SELECT country_id FROM Countries WHERE country_name = %s'
     return find_in_db(query, (country_name,))
+
+def find_artist_id_from_mb_id(mb_id):
+    query = 'SELECT artist_id from Artist WHERE mb_id = %s'
+    return find_in_db(query, (mb_id,))
+
+def add_connection(group_id, mb_id, member_mb_id):
+    member_id = find_artist_id_from_mb_id(member_mb_id)
+    query = 'INSERT INTO RelatedArtists (solo, band) VALUES (%s, %s)'
+    run_insert(query, (member_id, group_id), False)
 
 def validate_country(country_name):
     country_id = country_in_db(country_name)
@@ -109,19 +123,20 @@ def validate_artist_song(artist_name, song_name):
 
 def download_group_connection(group_id, mb_id):
     links = mb.get_artist_by_id(mb_id, "artist-rels")
-    pass
+    per_artist = links['artist']
+    relation_list = per_artist['artist-relation-list']
+    for relation in relation_list:
+        if relation['type'] != 'member of band':
+            continue
+        member_mb_id = relation['artist']['id']
+        add_connection(group_id, mb_id, member_mb_id)
 
 def connect_all_groups():
     query = 'SELECT artist_id, mb_id FROM Artist WHERE is_solo=false AND mb_id IS NOT NULL'
-    cnx = mysql.connector.connect(user=MYSQL_USER, database=MYSQL_DB_NAME, password=MYSQL_PASSWORD)
-    cursor = cnx.cursor()
-    cursor.execute(query, values)
-
-    for group_id, mb_id in cursor:
-        download_group_connection(group_id, mb_id)
-
-    cursor.close()
-    cnx.close()
+    with db_cursor(False) as cursor:
+        cursor.execute(query)
+        for group_id, mb_id in cursor:
+            download_group_connection(group_id, mb_id)
 
 def pull_week(week):
     chart = billboard.ChartData('hot-100', week=week)
