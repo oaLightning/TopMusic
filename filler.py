@@ -6,10 +6,17 @@ import mysql.connector
 
 import billboard
 import musicbrainzngs as mb
+import re
 
 MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'root'
+MYSQL_PASSWORD = 'zubur123959!'
 MYSQL_DB_NAME = 'top_music'
+MYSQL_HOST = 'localhost'
+
+#Used for testing
+DUMMY_DATE = "2000-01-01"
+DUMMY_ARTIST_ID = 1
+DUMMY_SONG_NAME = "DummySong"
 
 logger = logging.getLogger('TopMusicFiller')
 
@@ -31,41 +38,42 @@ def run_insert(query, values, return_new_row):
     if return_new_row:
         return last_row_id
 
-def find_in_db(query, values):
+def find_in_db(query, values=None):
     cnx = mysql.connector.connect(user=MYSQL_USER, database=MYSQL_DB_NAME, password=MYSQL_PASSWORD)
     cursor = cnx.cursor()
     cursor.execute(query, values)
-    if 0 == cursor.rowcount:
+    rows = cursor.fetchall()
+    if 0 >= cursor.rowcount:
         return False
-    assert 1 = cursor.rowcount, 'Got more rows than expected for query {}, {}, {}'.format(query, values, cursor.rowcount)
-    found_id = cursor.next()
+    assert 1 == cursor.rowcount, 'Got more rows than expected for query {}, {}, {}'.format(query, values, cursor.rowcount)
+    found_id = rows[0][0]
     cursor.close()
-    cnx.close()
+    cnx.close() 
     return found_id
 
 def insert_artist(artist_name, is_solo, country_code, mb_id):
-    query = 'INSERT INTO Artist (artist_name, source_contry, is_solo, mb_id) VALUES (%s, %s, %s, %s)'
+    query = 'INSERT IGNORE INTO Artist (artist_name, source_contry, is_solo, mb_id) VALUES (%s, %s, %s, %s)'
     return run_insert(query, (artist_name, country_code, is_solo, mb_id), True)
 
 def insert_song(song_name, artist_id, release_date):
-    query = 'INSERT INTO Songs (artist_id, name, release_date) VALUES (%s, %s, %s)'
+    query = 'INSERT IGNORE INTO Songs (artist_id, name, release_date) VALUES (%s, %s, %s)'
     return run_insert(query, (artist_id, song_name, release_date), True)
 
 def insert_chart(song_id, artist_id, chart_pos, week):
-    query = 'INSERT INTO Chart (chart_date, song_id, artist_id, postion) VALUES (%s, %s, %s, %s)'
+    query = 'INSERT INTO Chart (chart_date, song_id, artist_id, position) VALUES (%s, %s, %s, %s)'
     run_insert(query, (week, song_id, artist_id, chart_pos), False)
 
 def song_in_db(song_name, artist_id):
-    query = 'SELECT country_id FROM Songs WHERE artist_id = %s AND name = %s'
+    query = 'SELECT song_id FROM Songs WHERE artist_id = %s AND name = %s'
     return find_in_db(query, (artist_id, song_name))
 
 def artist_in_db(artist_name):
-    query = 'SELECT country_id FROM Artist WHERE artist_name = %s'
-    return find_in_db(query, (artist_name,))
+    query = 'SELECT artist_id FROM Artist WHERE artist_name =\"' + artist_name + '\"'
+    return find_in_db(query)
 
 def country_in_db(country_name):
     query = 'SELECT country_id FROM Countries WHERE country_name = %s'
-    return find_in_db(query, (country_name,))
+    return find_in_db(query, (country_name))
 
 def validate_country(country_name):
     country_id = country_in_db(country_name)
@@ -95,8 +103,11 @@ def validate_artist(artist_name):
 def validate_artist_song(artist_name, song_name):
     artist_id = validate_artist(artist_name)
     song_id = song_in_db(song_name, artist_id)
+    #print "found artist id and song id: " + str(artist_id) + " " + str(song_id)
     if song_id:
-        return song_id, artist_id
+        return artist_id, song_id
+    else:
+        print song_name
     response = mb.search_recordings(artist=artist_name, release=song_name)
     if 0 != response['release-count']:
         release_json = response['release-list'][0] # Currentyl we take the first, maybe we should check?
@@ -105,7 +116,7 @@ def validate_artist_song(artist_name, song_name):
         logger.warning('Got 0 possible releases for "%s" by "%s", skipping', song_name, artist_name)
         release_date = None
     song_id = insert_song(song_name=song_name, artist=artist_id, release_date=release_date)
-    return song_id, artist_id
+    return artist_id, song_id
 
 def download_group_connection(group_id, mb_id):
     links = mb.get_artist_by_id(mb_id, "artist-rels")
@@ -116,15 +127,60 @@ def connect_all_groups():
     cnx = mysql.connector.connect(user=MYSQL_USER, database=MYSQL_DB_NAME, password=MYSQL_PASSWORD)
     cursor = cnx.cursor()
     cursor.execute(query, values)
-
     for group_id, mb_id in cursor:
         download_group_connection(group_id, mb_id)
-
     cursor.close()
     cnx.close()
 
-def pull_week(week):
-    chart = billboard.ChartData('hot-100', week=week)
+'''
+date should be of the form YYYY-MM-DD, for example "2018-01-06" (must use quotations)
+'''
+def pull_week(date):
+    chart = billboard.ChartData('hot-100', date=date)    
     for song in chart:
-        artist_id, song_id = validate_artist_song(song.artist, song.title)
-        insert_chart(song_id, artist_id, song.rank, week)
+        artist_id, song_id = validate_artist_song(parse_artist_name(song.artist), song.title)
+        insert_chart(song_id, artist_id, song.rank, date)
+    
+'''
+extracts num_of_weeks weeks of charts (starting from current) from billboard.com
+'''
+def extract_billboard_charts(num_of_weeks):
+    chart = billboard.ChartData('hot-100')
+    for x in range(0, num_of_weeks):
+        for song in chart:
+            artist_id, song_id = validate_artist_song(parse_artist_name(song.artist), song.title)
+            insert_chart(song_id, artist_id, song.rank, chart.date)
+        chart = billboard.ChartData('hot-100', chart.previousDate)
+
+'''           
+extracts the main artist of a song        
+'''
+def parse_artist_name(name):
+    result = re.split('& | Featuring | \+ | \, | X | x | Duet | , | /,\s*/', name)
+    if(len(result) > 1):
+        result = (result[0]).split(",")
+        return result[0] #for some reason comma is not removed by the above regex 
+    return name    
+    
+'''
+Can be used for testing purposes, populates the top_music.Artist/Song tables with exactly the 
+same input drawned from Billboard.com, so "pull_week" always succeeds
+'''
+def populate_artists_and_songs(num_of_weeks): #date in the form of YYYY-MM-DD
+    chart = billboard.ChartData('hot-100')
+    for x in range(0, num_of_weeks):
+        for song in chart:
+            print song
+            print type(song)
+            insert_artist(parse_artist_name(song.artist), "", "1", "")
+            artist_id = validate_artist(parse_artist_name(song.artist))
+            insert_song(song.title, artist_id, DUMMY_DATE)
+        chart = billboard.ChartData('hot-100', chart.previousDate)
+
+        
+        
+        
+'''Do stuff'''
+        
+print "done"
+    

@@ -1,21 +1,20 @@
-CREATE SCHEMA `top_music`;
 USE top_music;
 
 CREATE TABLE Songs (
 	song_id INT NOT NULL AUTO_INCREMENT,
 	artist_id INT,
-	name VARCHAR(100),
+	name VARCHAR(100) UNIQUE,
 	release_date DATE,
 	PRIMARY KEY (song_id)
 );
 
 CREATE TABLE Artist (
 	artist_id INT NOT NULL AUTO_INCREMENT,
-	artist_name VARCHAR(50),
+	artist_name VARCHAR(50) UNIQUE,
 	source_contry INT,
 	is_solo BIT(1),
-	mb_id VARCHAR(36)
-	PRIMARY KEY (artist_id),
+	mb_id VARCHAR(36),
+	PRIMARY KEY (artist_id)
 );
 
 CREATE TABLE Chart (
