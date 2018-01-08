@@ -10,7 +10,7 @@ import musicbrainzngs as mb
 import re
 
 MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'zubur123959!'
+MYSQL_PASSWORD = 'root'
 MYSQL_DB_NAME = 'top_music'
 MYSQL_HOST = 'localhost'
 
@@ -79,9 +79,13 @@ def insert_song(song_name, artist_id, release_date):
     '''
     Inserts a new song into the DB and returns it's id
     '''
-    query = 'INSERT INTO Songs (artist_id, name, release_date) VALUES (%s, "%s", "%s")'
-    release_date = release_date.strftime('%Y-%m-%d %H:%M:%S') if release_date else 'NULL'
-    return run_insert(query, (artist_id, song_name, release_date), True)
+    if release_date:
+        query = 'INSERT INTO Songs (artist_id, name, release_date) VALUES (%s, "%s", "%s")'
+        values = (artist_id, song_name, release_date)
+    else:
+        query = 'INSERT INTO Songs (artist_id, name) VALUES (%s, "%s")'
+        values = (artist_id, song_name)
+    return run_insert(query, values, True)
 
 def insert_chart(song_id, artist_id, chart_pos, week):
     '''
