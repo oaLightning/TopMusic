@@ -125,8 +125,13 @@ def insert_artist(artist_name, is_solo, country_code, mb_id):
     '''
     Inserts a new artist into the DB and returns his id
     '''
-    query = 'INSERT INTO Artist (artist_name, source_contry, is_solo, mb_id) VALUES ("%s", %s, %s, "%s")'
-    return run_insert(query, (artist_name, country_code, is_solo, mb_id), True)
+    if mb_id is not None:
+        query = 'INSERT INTO Artist (artist_name, source_contry, is_solo, mb_id) VALUES ("%s", %s, %s, "%s")'
+        values = (artist_name, country_code, is_solo, mb_id)
+    else:
+        query = 'INSERT INTO Artist (artist_name, source_contry, is_solo) VALUES ("%s", %s, %s)'
+        values = (artist_name, country_code, is_solo)
+    return run_insert(query, values, True)
 
 def insert_song(song_name, artist_id, release_date):
     '''
@@ -230,7 +235,7 @@ def validate_artist(artist_name):
     if 0 == response['artist-count']:
         logger.warning('Got 0 possible artists for "%s", skipping', artist_name)
         country_code = -1
-        is_solo = None
+        is_solo = True
         mb_id = None
         name = artist_name
     else:
