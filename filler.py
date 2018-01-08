@@ -198,20 +198,18 @@ def validate_artist_song(artist_name, song_name):
     '''
     artist_id = validate_artist(artist_name)
     song_id = song_in_db(song_name, artist_id)
-    #print "found artist id and song id: " + str(artist_id) + " " + str(song_id)
     if song_id:
         return artist_id, song_id
-    else:
-        print song_name
     logger.debug("Getting MusicBrainz info for %s by %s", song_name, artist_name)
     response = mb.search_recordings(artist=artist_name, release=song_name)
     if 0 != response['recording-count']:
         recording_json = response['recording-list'][0] # Currentyl we take the first, maybe we should check?
         release_date = None
-        for release in recording_json['release-list']:
-            if 'date' in release:
-                release_date = parse(release['date'])
-                break
+        if 'release-list' in recording_json:
+            for release in recording_json['release-list']:
+                if 'date' in release:
+                    release_date = parse(release['date'])
+                    break
     else:
         logger.warning('Got 0 possible releases for "%s" by "%s", skipping', song_name, artist_name)
         release_date = None
@@ -290,8 +288,6 @@ def populate_artists_and_songs(num_of_weeks): #date in the form of YYYY-MM-DD
     chart = billboard.ChartData('hot-100')
     for x in range(0, num_of_weeks):
         for song in chart:
-            print song
-            print type(song)
             insert_artist(parse_artist_name(song.artist), "", "1", "")
             artist_id = validate_artist(parse_artist_name(song.artist))
             insert_song(song.title, artist_id, DUMMY_DATE)
