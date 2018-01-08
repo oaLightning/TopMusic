@@ -190,6 +190,15 @@ def find_artist_id_from_mb_id(mb_id):
     query = 'SELECT artist_id from Artist WHERE mb_id = "%s"'
     return find_in_db(query, (mb_id,))
 
+def chart_pos_in_db(date, position):
+    query = 'SELECT song_id FROM Chart where chart_date = "%s" AND position = %s'    
+    found_id = find_in_db(query, (date, position))
+    if found_id is False:
+        return False
+    if found_id is None:
+        return False
+    return True
+
 def add_connection(group_id, mb_id, member_mb_id):
     '''
     Adds a connection between a single member of a band to the band
@@ -295,6 +304,7 @@ def connect_all_groups():
     query = 'SELECT artist_id, mb_id, artist_name FROM Artist WHERE is_solo=false AND mb_id IS NOT NULL'
     with db_cursor(False) as cursor:
         cursor.execute(query)
+        cursor.fetchall()
         for group_id, mb_id, group_name in cursor:
             logger.debug("Getting members of %s", group_name)
             download_group_connection(group_id, mb_id)
@@ -306,6 +316,9 @@ def pull_week(date):
     logger.debug("Downloading the week of %s", date)
     chart = billboard.ChartData('hot-100', date=date)    
     for song in chart:
+        if chart_pos_in_db(date, song.rank):
+            logger.debug("Skipping inserting song position %s for week %s", song.rank, date)
+            continue
         artist_id, song_id = validate_artist_song(parse_artist_name(song.artist), song.title)
         insert_chart(song_id, artist_id, song.rank, date)
     
@@ -315,11 +328,16 @@ def extract_billboard_charts(num_of_weeks):
     '''
     logger.info("Downloading billboard charts for %s weeks", num_of_weeks)
     chart = billboard.ChartData('hot-100')
+    logger.debug("Got chart date for the week of %s", chart.date)
     for x in range(0, num_of_weeks):
         for song in chart:
+            if chart_pos_in_db(chart.date, song.rank):
+                logger.debug("Skipping inserting song position %s for week %s", song.rank, chart.date)
+                continue
             artist_id, song_id = validate_artist_song(parse_artist_name(song.artist), song.title)
             insert_chart(song_id, artist_id, song.rank, chart.date)
         chart = billboard.ChartData('hot-100', chart.previousDate)
+        logger.debug("Got chart date for the week of %s", chart.date)
     connect_all_groups()
 
 
