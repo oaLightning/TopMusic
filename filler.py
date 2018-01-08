@@ -2,12 +2,13 @@ import logging
 from datetime import datetime
 from dateutil.parser import parse
 from contextlib import contextmanager
+import time
+import re
 
 import mysql.connector
 
 import billboard
 import musicbrainzngs as mb
-import re
 
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = 'root'
@@ -41,6 +42,58 @@ def db_cursor(commit_in_the_end):
             cnx.commit()
         cursor.close()
         cnx.close()
+
+def static_vars(**kwargs):
+    def decorate(func):
+        for k in kwargs:
+            setattr(func, k, kwargs[k])
+        return func
+    return decorate
+
+@static_vars(last_call_time=time.time())
+def wait_between_calls(request_call):
+    '''
+    Waits for at least MIN_TIME_BETWEEN_CALLS second to pass between the last 
+    call the the next call to go through the function
+    MIN_TIME_BETWEEN_CALLS could be 1, but we set it to 1.5 to be model citizens
+    '''
+    def wait_and_call():
+        MIN_TIME_BETWEEN_CALLS = 1.5
+        current_time = time.time()
+        if current_time < (wait_between_calls.last_call_time + MIN_TIME_BETWEEN_CALLS):
+            time.sleep(wait_between_calls.last_call_time + MIN_TIME_BETWEEN_CALLS - current_time)
+        try:
+            return request_call()
+        finally:
+            wait_between_calls.last_call_time = time.time()
+    return wait_and_call
+
+def retry_times(request_call):
+    '''
+    Wraps a function and tries to call it up to a maximum of 10 attempts
+    '''
+    def try_times():
+        ATTEMPTS = 10
+        for i in range(ATTEMPTS):
+            try:
+                return request_call()
+            except Exception as e:
+                logger.warn("Got exception while running on attempt %s/%s: %s", i, ATTEMPTS, e)
+                last_exception = e
+        logger.error("Failed doing operation %s time, failing", ATTEMPTS)
+        raise e
+    return try_times
+
+def try_mb_request(request_call):
+    '''
+    Wraps calls to the MusicBrainz server to wait at least 1 second between calls, and if they do fail
+    to make sure to try again a number of times. This is done in order to appease 
+    https://musicbrainz.org/doc/XML_Web_Service/Rate_Limiting
+    because if we go as fast as we can we end up being blocked by the server for using it to much
+    '''
+    # Note, retry_times and wait_between_calls are just wrappers, we need the extra parantheses at
+    # the end to actually call the functions and make things happen
+    return retry_times(wait_between_calls(request_call))()
 
 def run_insert(query, values, return_new_row):
     '''
@@ -164,7 +217,7 @@ def validate_artist(artist_name):
     if artist_id:
         return artist_id
     logger.debug("Getting MusicBrainz info for %s", artist_name)
-    response = mb.search_artists(artist=artist_name)
+    response = try_mb_request(lambda: mb.search_artists(artist=artist_name))
     if 0 == response['artist-count']:
         logger.warning('Got 0 possible artists for "%s", skipping', artist_name)
         country_code = -1
@@ -201,7 +254,7 @@ def validate_artist_song(artist_name, song_name):
     if song_id:
         return artist_id, song_id
     logger.debug("Getting MusicBrainz info for %s by %s", song_name, artist_name)
-    response = mb.search_recordings(artist=artist_name, release=song_name)
+    response = try_mb_request(lambda: mb.search_recordings(artist=artist_name, release=song_name))
     if 0 != response['recording-count']:
         recording_json = response['recording-list'][0] # Currentyl we take the first, maybe we should check?
         release_date = None
@@ -220,7 +273,7 @@ def download_group_connection(group_id, mb_id):
     '''
     Downloads and connects the members of a specific group
     '''
-    links = mb.get_artist_by_id(mb_id, "artist-rels")
+    links = try_mb_request(lambda: mb.get_artist_by_id(mb_id, "artist-rels"))
     per_artist = links['artist']
     relation_list = per_artist['artist-relation-list']
     for relation in relation_list:
