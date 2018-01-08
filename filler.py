@@ -4,6 +4,10 @@ from dateutil.parser import parse
 from contextlib import contextmanager
 import time
 import re
+import urllib
+import urllib2
+import json
+import unicodedata
 
 import mysql.connector
 
@@ -159,6 +163,15 @@ def insert_country(country_name):
     query = 'INSERT INTO Countries (country_name) VALUES ("%s")'
     return run_insert(query, (country_name), True)
 
+def insert_lyrics(song_id, song_lyrics):
+    '''
+    Inserts the lyrics to a song
+    '''
+    query = 'INSERT INTO Lyrics (song_id, lyrics) VALUES (%s, "%s")'
+    safe_lyrics = re.sub("[\"']", '', query)
+    safe_lyrics = safe_lyrics[:21840]
+    run_insert(query, (song_id, safe_lyrics), False)
+
 def song_in_db(song_name, artist_id):
     '''
     Checks if we have a song with this name by this artist in the DB, and if so returns it's internal id
@@ -222,6 +235,25 @@ def validate_country(country_name):
         return country_id
     return insert_country(country_name)
 
+def get_song_lyrics(song_name, artist_name):
+    '''
+    Downlodas lyrics to a song given it's name and artist
+    '''
+    logger.debug('Trying to fetch lyrics for %s by %s', song_name, artist_name)
+    full_url = 'https://api.lyrics.ovh/v1/{}/{}'.format(artist_name, song_name)
+    full_url = urllib.quote(full_url, safe="%/:=&?~#+!$,;'@()*[]")
+    request = urllib2.Request(full_url)
+    
+    try:
+        response = urllib2.urlopen(request).read()
+        json_reponse = json.loads(response)
+        unicode_lyrics = json_reponse['lyrics']
+        ascii_lyrics = unicodedata.normalize('NFKD', unicode_lyrics).encode('ascii','ignore')
+        return ascii_lyrics
+    except Exception as e:
+        logger.warn("Got exception trying to get lyrics for %s by %s, skipping %s", song_name, artist_name, e)
+        return None
+
 def validate_artist(artist_name):
     '''
     Makes sure we have the artist in the DB, otherwise
@@ -281,6 +313,9 @@ def validate_artist_song(artist_name, song_name):
         logger.warning('Got 0 possible releases for "%s" by "%s", skipping', song_name, artist_name)
         release_date = None
     song_id = insert_song(song_name=song_name, artist_id=artist_id, release_date=release_date)
+    song_lyrics = get_song_lyrics(song_name, artist_name)
+    if song_lyrics:
+        insert_lyrics(song_id, song_lyrics)
     return artist_id, song_id
 
 def download_group_connection(group_id, mb_id):
