@@ -7,13 +7,13 @@ CREATE TABLE Countries (
 	PRIMARY KEY (country_id)
 );
 
-
 CREATE TABLE Songs (
 	song_id INT NOT NULL AUTO_INCREMENT,
 	artist_id INT,
-	name VARCHAR(100) UNIQUE,
+	name VARCHAR(100),
 	release_date DATE,
-	PRIMARY KEY (song_id)
+	PRIMARY KEY (song_id),
+	UNIQUE KEY (artist_id, name)
 );
 
 CREATE TABLE Artist (
