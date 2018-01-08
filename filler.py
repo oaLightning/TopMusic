@@ -80,7 +80,8 @@ def insert_song(song_name, artist_id, release_date):
     Inserts a new song into the DB and returns it's id
     '''
     query = 'INSERT INTO Songs (artist_id, name, release_date) VALUES (%s, "%s", "%s")'
-    return run_insert(query, (artist_id, song_name, release_date.strftime('%Y-%m-%d %H:%M:%S')), True)
+    release_date = release_date.strftime('%Y-%m-%d %H:%M:%S') if release_date else 'NULL'
+    return run_insert(query, (artist_id, song_name, release_date), True)
 
 def insert_chart(song_id, artist_id, chart_pos, week):
     '''
@@ -109,6 +110,13 @@ def artist_in_db(artist_name):
     '''
     query = 'SELECT artist_id FROM Artist WHERE artist_name = "%s"'
     return find_in_db(query, (artist_name))
+
+def artist_in_db_by_mbid(artist_mbid):
+    '''
+    Checks if we have an artist with this name in the DB, and if so returns his internal id
+    '''
+    query = 'SELECT artist_id FROM Artist WHERE mb_id = "%s"'
+    return find_in_db(query, (artist_mbid))
 
 def country_in_db(country_name):
     '''
@@ -155,17 +163,28 @@ def validate_artist(artist_name):
     response = mb.search_artists(artist=artist_name)
     if 0 == response['artist-count']:
         logger.warning('Got 0 possible artists for "%s", skipping', artist_name)
-        country_code = None
+        country_code = -1
         is_solo = None
         mb_id = None
         name = artist_name
     else:
         artist_json = response['artist-list'][0] # Currently we take the first, maybe we should take others?
-        country = artist_json['area']['name']
+        if 'area' in artist_json and 'name' in artist_json['area']:
+            country = artist_json['area']['name']
+        else:
+            country = -1
         name = artist_json['name']
-        is_solo = 'Person' == artist_json['type']
+        if 'type' in artist_json:
+            is_solo = 'Person' == artist_json['type']
+        else:
+            is_solo = True # We just assume this for now
         country_code = validate_country(country)
         mb_id = artist_json['id']
+        # This is needed because sometimes the name in artist_name doesn't match the name 
+        # in the json, and in those cases we might need the extra check
+        artist_id = artist_in_db_by_mbid(mb_id)
+        if artist_id:
+            return artist_id
     return insert_artist(name, is_solo=is_solo, country_code=country_code, mb_id=mb_id)
 
 def validate_artist_song(artist_name, song_name):
@@ -183,7 +202,11 @@ def validate_artist_song(artist_name, song_name):
     response = mb.search_recordings(artist=artist_name, release=song_name)
     if 0 != response['recording-count']:
         recording_json = response['recording-list'][0] # Currentyl we take the first, maybe we should check?
-        release_date = parse(recording_json['release-list'][0]['date'])
+        release_date = None
+        for release in recording_json['release-list']:
+            if 'date' in release:
+                release_date = parse(release['date'])
+                break
     else:
         logger.warning('Got 0 possible releases for "%s" by "%s", skipping', song_name, artist_name)
         release_date = None
@@ -254,11 +277,11 @@ def parse_artist_name(name):
         return result[0] #for some reason comma is not removed by the above regex 
     return name    
     
-'''
-Can be used for testing purposes, populates the top_music.Artist/Song tables with exactly the 
-same input drawned from Billboard.com, so "pull_week" always succeeds
-'''
 def populate_artists_and_songs(num_of_weeks): #date in the form of YYYY-MM-DD
+    '''
+    Can be used for testing purposes, populates the top_music.Artist/Song tables with exactly the 
+    same input drawned from Billboard.com, so "pull_week" always succeeds
+    '''
     chart = billboard.ChartData('hot-100')
     for x in range(0, num_of_weeks):
         for song in chart:
@@ -270,12 +293,28 @@ def populate_artists_and_songs(num_of_weeks): #date in the form of YYYY-MM-DD
         chart = billboard.ChartData('hot-100', chart.previousDate)
 
 def extract_all_data():
+    '''
+    Extracts all the billboard data from the start untill the current day
+    '''
     start_date = datetime(1954, 1, 1)
     current_date = datetime.today()
     current_date = datetime(current_date.year, current_date.month, current_date.day)
     days_between = (current_date - start_date).days
     number_of_weeks = (days_between+6)/7 # This calculation is to make sure we don't miss any weeks
     extract_billboard_charts(number_of_weeks)
+
+def clear_all_data():
+    '''
+    For testing puposes, clears all the data from the DB
+    '''
+    with db_cursor(True) as cursor:
+        cursor.execute("DELETE FROM Lyrics")
+        cursor.execute("DELETE FROM RelatedArtists")
+        cursor.execute("DELETE FROM Chart")
+        cursor.execute("DELETE FROM Songs")
+        cursor.execute("DELETE FROM Artist")
+        cursor.execute("DELETE FROM Countries")
+
 
 if '__main__' == __name__:
     extract_all_data()
