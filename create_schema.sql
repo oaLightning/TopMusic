@@ -7,6 +7,7 @@ CREATE TABLE Countries (
 	PRIMARY KEY (country_id)
 );
 
+
 CREATE TABLE Songs (
 	song_id INT NOT NULL AUTO_INCREMENT,
 	artist_id INT,

@@ -10,7 +10,7 @@ import musicbrainzngs as mb
 import re
 
 MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'root'
+MYSQL_PASSWORD = 'zubur123959!'
 MYSQL_DB_NAME = 'top_music'
 MYSQL_HOST = 'localhost'
 
@@ -194,6 +194,7 @@ def validate_artist_song(artist_name, song_name):
     '''
     artist_id = validate_artist(artist_name)
     song_id = song_in_db(song_name, artist_id)
+    #print "found artist id and song id: " + str(artist_id) + " " + str(song_id)
     if song_id:
         return artist_id, song_id
     else:
