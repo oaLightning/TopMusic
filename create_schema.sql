@@ -1,21 +1,29 @@
 CREATE SCHEMA `top_music`;
 USE top_music;
 
+CREATE TABLE Countries (
+	country_id INT NOT NULL AUTO_INCREMENT,
+	country_name VARCHAR(64),
+	PRIMARY KEY (country_id)
+);
+
+
 CREATE TABLE Songs (
 	song_id INT NOT NULL AUTO_INCREMENT,
 	artist_id INT,
-	name VARCHAR(100),
+	name VARCHAR(100) UNIQUE,
 	release_date DATE,
 	PRIMARY KEY (song_id)
 );
 
 CREATE TABLE Artist (
 	artist_id INT NOT NULL AUTO_INCREMENT,
-	artist_name VARCHAR(50),
+	artist_name VARCHAR(50) UNIQUE,
 	source_contry INT,
 	is_solo BIT(1),
-	mb_id VARCHAR(36)
+	mb_id VARCHAR(36) UNIQUE,
 	PRIMARY KEY (artist_id),
+	FOREIGN KEY (source_contry) REFERENCES Countries(country_id)
 );
 CREATE INDEX mb_id_idx on Artist(mb_id);
 
@@ -46,8 +54,4 @@ CREATE TABLE Lyrics (
 	FOREIGN KEY (song_id) REFERENCES Songs(song_id)
 );
 
-CREATE TABLE Countries (
-	country_id INT NOT NULL AUTO_INCREMENT,
-	country_name VARCHAR(64),
-	PRIMARY KEY (country_id)
-);
+INSERT INTO Countries (country_id, country_name) VALUES (-1, "Unknown Country");
