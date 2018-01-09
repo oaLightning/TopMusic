@@ -1,0 +1,9 @@
+{
+  "song_list" : [
+    {"song" : "Eleanor Rigby", "artist": "The Beatles" },
+    {"song" : "Hey Jude", "artist": "The Beatles" },
+    {"song" : "Come Together", "artist": "The Beatles" },
+    {"song" : "Woman", "artist": "John Lennon" },
+    {"song" : "Imagine", "artist": "John Lennon" }
+  ]
+}
