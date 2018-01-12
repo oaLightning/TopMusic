@@ -19,11 +19,11 @@ CREATE TABLE Songs (
 CREATE TABLE Artist (
 	artist_id INT NOT NULL AUTO_INCREMENT,
 	artist_name VARCHAR(50) UNIQUE,
-	source_contry INT,
+	source_country INT,
 	is_solo BIT(1),
 	mb_id VARCHAR(36) UNIQUE,
 	PRIMARY KEY (artist_id),
-	FOREIGN KEY (source_contry) REFERENCES Countries(country_id)
+	FOREIGN KEY (source_country) REFERENCES Countries(country_id)
 );
 CREATE INDEX mb_id_idx on Artist(mb_id);
 
@@ -51,7 +51,8 @@ CREATE INDEX related_band_idx ON RelatedArtists(band);
 CREATE TABLE Lyrics (
 	song_id INT,
 	lyrics VARCHAR(21840),
+	FULLTEXT idx (lyrics),
 	FOREIGN KEY (song_id) REFERENCES Songs(song_id)
-);
+) ENGINE=MyISAM;
 
 INSERT INTO Countries (country_id, country_name) VALUES (-1, "Unknown Country");
