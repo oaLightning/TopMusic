@@ -19,11 +19,11 @@ CREATE TABLE Songs (
 CREATE TABLE Artist (
 	artist_id INT NOT NULL AUTO_INCREMENT,
 	artist_name VARCHAR(50) UNIQUE,
-	source_contry INT,
+	source_country INT,
 	is_solo BIT(1),
 	mb_id VARCHAR(36) UNIQUE,
 	PRIMARY KEY (artist_id),
-	FOREIGN KEY (source_contry) REFERENCES Countries(country_id)
+	FOREIGN KEY (source_country) REFERENCES Countries(country_id)
 );
 CREATE INDEX mb_id_idx on Artist(mb_id);
 
