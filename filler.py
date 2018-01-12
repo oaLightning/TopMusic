@@ -266,7 +266,8 @@ def validate_artist(artist_name):
     response = try_mb_request(lambda: mb.search_artists(artist=artist_name))
     if 0 == response['artist-count']:
         logger.warning('Got 0 possible artists for "%s", skipping', artist_name)
-        country_code = -1
+        country = -1
+        country_code = validate_country(country)
         is_solo = True
         mb_id = None
         name = artist_name
