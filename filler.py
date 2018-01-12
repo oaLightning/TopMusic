@@ -130,10 +130,10 @@ def insert_artist(artist_name, is_solo, country_code, mb_id):
     Inserts a new artist into the DB and returns his id
     '''
     if mb_id is not None:
-        query = 'INSERT INTO Artist (artist_name, source_contry, is_solo, mb_id) VALUES ("%s", %s, %s, "%s")'
+        query = 'INSERT INTO Artist (artist_name, source_country, is_solo, mb_id) VALUES ("%s", %s, %s, "%s")'
         values = (artist_name, country_code, is_solo, mb_id)
     else:
-        query = 'INSERT INTO Artist (artist_name, source_contry, is_solo) VALUES ("%s", %s, %s)'
+        query = 'INSERT INTO Artist (artist_name, source_country, is_solo) VALUES ("%s", %s, %s)'
         values = (artist_name, country_code, is_solo)
     return run_insert(query, values, True)
 
