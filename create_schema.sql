@@ -51,7 +51,8 @@ CREATE INDEX related_band_idx ON RelatedArtists(band);
 CREATE TABLE Lyrics (
 	song_id INT,
 	lyrics VARCHAR(21840),
+	FULLTEXT idx (lyrics),
 	FOREIGN KEY (song_id) REFERENCES Songs(song_id)
-);
+) ENGINE=MyISAM;
 
 INSERT INTO Countries (country_id, country_name) VALUES (-1, "Unknown Country");
