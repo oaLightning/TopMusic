@@ -11,7 +11,7 @@ def hello_world():
 	return "Hello Music!"
 
 #get result of MySQL query and convert it to json format.
-def fromQueryResultToJson(cur)
+def from_query_result_to_json(cur):
 	row_headers=[x[0] for x in cur.description] #this will extract row headers
 	rows = cur.fetchall()
 	json_data=[]
@@ -20,23 +20,23 @@ def fromQueryResultToJson(cur)
 	return json.dumps(json_data)
 
 @app.route('/beastie', methods=['POST', 'GET'])
-def queryBeasties():
+def query_beasties():
 	if request.method == 'GET':
 		return render_template('login.html')
 	elif request.method == 'POST':
 		cur = con.cursor(mdb.cursors.DictCursor)
-		artistName = request.form['name']
+		artist_name = request.form['name']
 		country = request.form['country']
 		start_date = request.form['fromDate']
 		end_date = request.form['untilDate']
-		if artistName != '':
+		if artist_name != '':
 			if start_date == '':
 				query = queryTopArtistsOfCountryAllTime
 			else:
 				query = queryTopArtistsOfCountryInTimeRange
 			
 			cur.execute(query)
-			jsonQueryResult = fromQueryResultToJson(cur)
+			json_query_result = from_query_result_to_json(cur)
 			# return something else
             return redirect(url_for('post_login', name=user))
 		else:

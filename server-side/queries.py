@@ -4,12 +4,12 @@
 queryAllSongsOfArtistIncludingBand =
 	"(SELECT Songs.song_id"" \
 	""FROM Songs INNER JOIN Artist ON Artist.artist_id = Songs.artist_id"" \
-	""WHERE Artist.name = %s"%(artist_name))
+	""WHERE Artist.artist_name = %s"%(artist_name))
 	"UNION"" \
 	""(SELECT Songs.song_id"" \
-	""FROM Artist INNER JOIN BAND ON Artist.artist_id = RelatedArtists.solo"" \
+	""FROM Artist INNER JOIN RelatedArtists ON Artist.artist_id = RelatedArtists.solo"" \
 	""INNER JOIN Songs ON RelatedArtists.band = Songs.artist_id"" \
-	""WHERE Artist.name = %s"%(artist_name)")"
+	""WHERE Artist.artist_name = %s"%(artist_name)")"
 
 
 #query that finds for each singer all the songs he sang on hismself
