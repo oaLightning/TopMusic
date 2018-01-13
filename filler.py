@@ -434,9 +434,6 @@ def clear_all_data():
         cursor.execute("DELETE FROM Artist")
         cursor.execute("DELETE FROM Countries")
 
-'''
+
 if '__main__' == __name__:
     extract_all_data()
-'''
-
-extract_billboard_charts(1)
