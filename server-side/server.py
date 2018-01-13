@@ -1,14 +1,16 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, redirect, request, url_for
 import datetime
 import json
-import MySQLClient as mdb
+#import mysql.connector
+import MySQLdb as mdb
+from queries import *
 
-con = mdb.connect('mysqlsrv.tau.ac.il', 'DbMysql08', 'DbMysql08', 'DbMysql08')
-app = Flask(__name__)
+## dd/mm/yyyy format
+def getCurrentDate():
+	return datetime.datetime.today()
 
-@app.route('/')
-def hello_world():
-	return "Hello Music!"
+start_of_billboard100_date = "01/01/1955"
+con = mdb.connect(host='mysqlsrv.cs.tau.ac.il', db='DbMysql08', user='DbMysql08', passwd='DbMysql08')
 
 #get result of MySQL query and convert it to json format.
 def from_query_result_to_json(cur):
@@ -19,39 +21,75 @@ def from_query_result_to_json(cur):
 		json_data.append(dict(zip(row_headers,row)))
 	return json.dumps(json_data)
 
-@app.route('/beastie', methods=['POST', 'GET'])
-def query_beasties():
+def query_best(json_query_parameters):
+	artist_name = json_query_parameters['artistName']
+	source_country = json_query_parameters['country']
+	start_date = json_query_parameters['start_date']
+	if start_date == '':
+		start_date = start_of_billboard100_date
+	end_date = json_query_parameters['end_date']
+	if end_date == '':
+		end_date = getCurrentDate()
+	cur = con.cursor(mdb.cursors.DictCursor)
+	# add option to select whether we want songs or artists or bonus queries
+	return query_best_artists(cur, artist_name, source_country, start_date, end_date)
+
+def query_best_artists(cur, artist_name, source_country, start_date, end_date):
+	if source_country != '':
+		cur.execute(queryTopArtistsOfCountryInTimeRange, {'start_date': start_date, 'end_date': start_date})
+	else:
+		cur.execute(queryTopArtistsOfInTimeRange, {'start_date': start_date, 'end_date': start_date})
+	return from_query_result_to_json(cur)
+
+def query_best_songs(cur, artist_name, source_country, start_date, end_date):
+	if source_country != '':
+		cur.execute(queryTopSongsOfCountryInTimeRange, {'start_date': start_date, 'end_date': start_date})
+	else:
+		if artist_name != '':
+			cur.execute(queryTopOfArtist, {'start_date': start_date, 'end_date': start_date})
+		else:
+			cur.execute(queryTopSongsInTimeRange, {'start_date': start_date, 'end_date': start_date})
+	return from_query_result_to_json(cur)
+
+
+
+'''def query_best2():
 	if request.method == 'GET':
-		return render_template('login.html')
+		return render_template('welcome.html')
 	elif request.method == 'POST':
 		cur = con.cursor(mdb.cursors.DictCursor)
 		artist_name = request.form['name']
-		country = request.form['country']
+		source_country = request.form['country']
 		start_date = request.form['fromDate']
 		end_date = request.form['untilDate']
-		if artist_name != '':
+		if source_country != '':
 			if start_date == '':
 				query = queryTopArtistsOfCountryAllTime
 			else:
 				query = queryTopArtistsOfCountryInTimeRange
-			
 			cur.execute(query)
 			json_query_result = from_query_result_to_json(cur)
-			# return something else
-            return redirect(url_for('post_login', name=user))
-		else:
-			#return something else
-			return redirect(url_for('post_login', name='fail'))
+			return redirect(url_for('best-artists', country=source_country))'''
 
-#Also not sure about that
+def HearMeRoar():
+	cur = con.cursor(mdb.cursors.DictCursor)
+	cur.execute(querySongsOnMe, {'artist_name': 'Shakira'})
+	json_query_result = from_query_result_to_json(cur)
+	print json_query_result
+
+def GrowingStrong():
+	cur = con.cursor(mdb.cursors.DictCursor)
+	cur.execute(growing_strong, {'current_year': '2017'})
+	json_query_result = from_query_result_to_json(cur)
+	print json_query_result
+
+#simple query for sanity check
+def test():
+	cur = con.cursor(mdb.cursors.DictCursor)
+	cur.execute('SELECT Artist.artist_name FROM Artist LIMIT 50;')
+	json_query_result = from_query_result_to_json(cur)
+	print json_query_result
+
+
 if __name__ == '__main__':
-	app.run(port=8888, host="0.0.0.0", debug=True)
-
-#not sure what to do with those lines
-#singer_name = raw_input(“Optional: Enter a singer name”)
-#start_date = raw_input("Enter start date")
-#end_date = raw_input("Enter end date")
-	
-
-
-
+	test()
