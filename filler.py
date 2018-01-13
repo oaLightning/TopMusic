@@ -388,7 +388,14 @@ def extract_billboard_charts(num_of_weeks):
                 continue
             artist_id, song_id = validate_artist_song(parse_artist_name(song.artist), song.title)
             insert_chart(song_id, artist_id, song.rank, chart.date)
-        chart = billboard.ChartData('hot-100', chart.previousDate)
+        got_next_chart = False
+        while not got_next_chart:
+            try:
+                chart = billboard.ChartData('hot-100', chart.previousDate)
+                got_next_chart = True
+            except:
+                # This might happen because of temporary problems with billboard site
+                pass
         logger.debug("Got chart date for the week of %s", chart.date)
     connect_all_groups()
 
