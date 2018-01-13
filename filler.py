@@ -335,7 +335,7 @@ def download_group_connection(group_id, mb_id):
     links = try_mb_request(lambda: mb.get_artist_by_id(mb_id, "artist-rels"))
     per_artist = links['artist']
     if 'artist-relation-list' not in per_artist:
-        continue
+        return
     relation_list = per_artist['artist-relation-list']
     for relation in relation_list:
         if relation['type'] != 'member of band':
