@@ -131,19 +131,20 @@ def insert_artist(artist_name, is_solo, country_code, mb_id):
     '''
     Inserts a new artist into the DB and returns his id
     '''
-    safe_artist_name = re.sub("[\"']", '', artist_name)
+    artist_name = re.sub("[\"']", '', artist_name)
     if mb_id is not None:
         query = 'INSERT INTO Artist (artist_name, source_country, is_solo, mb_id) VALUES ("%s", %s, %s, "%s")'
-        values = (safe_artist_name, country_code, is_solo, mb_id)
+        values = (artist_name, country_code, is_solo, mb_id)
     else:
         query = 'INSERT INTO Artist (artist_name, source_country, is_solo) VALUES ("%s", %s, %s)'
-        values = (safe_artist_name, country_code, is_solo)
+        values = (artist_name, country_code, is_solo)
     return run_insert(query, values, True)
 
 def insert_song(song_name, artist_id, release_date):
     '''
     Inserts a new song into the DB and returns it's id
     '''
+    song_name = re.sub("[\"']", '', song_name)
     if release_date:
         query = 'INSERT INTO Songs (artist_id, name, release_date) VALUES (%s, "%s", "%s")'
         values = (artist_id, song_name, release_date)
@@ -180,6 +181,7 @@ def song_in_db(song_name, artist_id):
     Checks if we have a song with this name by this artist in the DB, and if so returns it's internal id
     '''
     query = 'SELECT song_id FROM Songs WHERE artist_id = %s AND name = "%s"'
+    song_name = re.sub("[\"']", '', song_name)
     return find_in_db(query, (artist_id, song_name))
 
 def artist_in_db(artist_name):
@@ -187,6 +189,7 @@ def artist_in_db(artist_name):
     Checks if we have an artist with this name in the DB, and if so returns his internal id
     '''
     query = 'SELECT artist_id FROM Artist WHERE artist_name = "%s"'
+    artist_name = re.sub("[\"']", '', artist_name)
     return find_in_db(query, (artist_name))
 
 def artist_in_db_by_mbid(artist_mbid):
