@@ -50,7 +50,7 @@ queryTopSongsOfCountryInTimeRange =\
 	"GROUP BY Songs.song_id " \
 	"ORDER BY sum(100-Chart.position);"
 
-# top songs in a country - TimeRange
+# top songs - TimeRange
 queryTopSongsInTimeRange =\
 	"SELECT Artist.artist_name AS artist, Songs.name AS song " \
 	"FROM Songs INNER JOIN Artist ON Songs.artist_id = Artist.artist_id " \

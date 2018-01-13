@@ -5,6 +5,8 @@ import MySQLdb as mdb
 from queries import *
 import decimal
 
+app = Flask(__name__)
+
 ## dd/mm/yyyy format
 def getCurrentDate():
 	return datetime.datetime.today()
@@ -20,6 +22,7 @@ class DecimalEncoder(json.JSONEncoder):
 			return float(o)
 		return super(DecimalEncoder, self).default(o)
 
+
 #get result of MySQL query and convert it to json format.
 def from_query_result_to_json(cur, isDecimal):
 	row_headers=[x[0] for x in cur.description] # this will extract row headers
@@ -31,6 +34,7 @@ def from_query_result_to_json(cur, isDecimal):
 		return json.dumps(json_data, cls = DecimalEncoder)
 	else:
 		return json.dumps(json_data)
+
 
 def query_best(json_query_parameters):
 	artist_name = json_query_parameters['artistName']
@@ -45,12 +49,14 @@ def query_best(json_query_parameters):
 	# add option to select whether we want songs or artists or bonus queries
 	return query_best_artists(cur, artist_name, source_country, start_date, end_date)
 
+
 def query_best_artists(cur, artist_name, source_country, start_date, end_date):
 	if source_country != '':
 		cur.execute(queryTopArtistsOfCountryInTimeRange, {'start_date': start_date, 'end_date': start_date})
 	else:
 		cur.execute(queryTopArtistsInTimeRange, {'start_date': start_date, 'end_date': start_date})
 	return from_query_result_to_json(cur, False)
+
 
 def query_best_songs(cur, artist_name, source_country, start_date, end_date):
 	if source_country != '':
@@ -61,7 +67,6 @@ def query_best_songs(cur, artist_name, source_country, start_date, end_date):
 		else:
 			cur.execute(queryTopSongsInTimeRange, {'start_date': start_date, 'end_date': start_date})
 	return from_query_result_to_json(cur, False)
-
 
 
 '''def query_best2():
@@ -82,17 +87,20 @@ def query_best_songs(cur, artist_name, source_country, start_date, end_date):
 			json_query_result = from_query_result_to_json(cur)
 			return redirect(url_for('best-artists', country=source_country))'''
 
+
 def HearMeRoar():
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(querySongsOnMe, {'artist_name': 'Shakira'})
 	json_query_result = from_query_result_to_json(cur, False)
 	print json_query_result
 
+
 def GrowingStrong():
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(queryGrowingStrong, {'current_year': getCurrentDate().year})
 	json_query_result = from_query_result_to_json(cur, True)
 	print json_query_result
+
 
 #simple query for sanity check
 def test():
@@ -102,6 +110,17 @@ def test():
 	print json_query_result
 
 
+@app.route('/template')
+def use_query_best_template():
+	return render_template('web_no_style.html')\
+
+
+@app.route('/')
+def hello_world():
+	return "In the game of music you either sing or you disappear!"
+
+
 if __name__ == '__main__':
 	#print query_best({"artistName" : '', "country" : '', "start_date" : datetime.datetime(2000, 1, 1), "end_date" : ''})
 	print GrowingStrong()
+	app.run(port=8888, host="0.0.0.0", debug=True)
