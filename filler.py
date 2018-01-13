@@ -224,6 +224,9 @@ def add_connection(group_id, mb_id, member_mb_id):
     Adds a connection between a single member of a band to the band
     '''
     member_id = find_artist_id_from_mb_id(member_mb_id)
+    if not member_id:
+        # If we're trying to add a member that doesn't exist we 
+        return
     query = 'INSERT INTO RelatedArtists (solo, band) VALUES (%s, %s)'
     run_insert(query, (member_id, group_id), False)
 
