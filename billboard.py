@@ -211,9 +211,20 @@ def downloadHTML(url):
     """Downloads and returns the webpage with the given URL.
     Returns an empty string on failure.
     """
+    import urllib2
+    request = urllib2.Request(url)
+    response = urllib2.urlopen(request).read()
+    return response  
+        
+'''
+def downloadHTML(url):
+    """Downloads and returns the webpage with the given URL.
+    Returns an empty string on failure.
+    """
     assert url.startswith('http://')
     req = requests.get(url, headers=HEADERS)
     if req.status_code == 200:
         return req.text
     else:
         return ''
+'''
