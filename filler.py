@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 from datetime import datetime
 from dateutil.parser import parse
@@ -8,6 +9,7 @@ import urllib
 import urllib2
 import json
 import unicodedata
+import string
 
 import mysql.connector
 
@@ -16,7 +18,7 @@ import musicbrainzngs as mb
 
 MYSQL_USER = 'root'
 MYSQL_PASSWORD = 'root'
-MYSQL_DB_NAME = 'top_music'
+MYSQL_DB_NAME = 'DbMysql08'
 MYSQL_HOST = 'localhost'
 
 logger = logging.getLogger('TopMusicFiller')
@@ -168,7 +170,7 @@ def insert_lyrics(song_id, song_lyrics):
     Inserts the lyrics to a song
     '''
     query = 'INSERT INTO Lyrics (song_id, lyrics) VALUES (%s, "%s")'
-    safe_lyrics = re.sub("[\"']", '', query)
+    safe_lyrics = re.sub("[\"']", '', song_lyrics)
     safe_lyrics = safe_lyrics[:21840]
     run_insert(query, (song_id, safe_lyrics), False)
 
@@ -278,6 +280,10 @@ def validate_artist(artist_name):
         else:
             country = -1
         name = artist_json['name']
+        if (isinstance(name, unicode)):
+            name = unicodedata.normalize('NFKD', name).encode('ascii','ignore')
+        #printable = set(string.printable)
+        #name = filter(lambda x: x in printable, name)
         if 'type' in artist_json:
             is_solo = 'Person' == artist_json['type']
         else:
@@ -428,6 +434,9 @@ def clear_all_data():
         cursor.execute("DELETE FROM Artist")
         cursor.execute("DELETE FROM Countries")
 
-
+'''
 if '__main__' == __name__:
     extract_all_data()
+'''
+
+extract_billboard_charts(1)
