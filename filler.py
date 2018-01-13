@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import logging
 from datetime import datetime
 from dateutil.parser import parse
@@ -8,16 +9,17 @@ import urllib
 import urllib2
 import json
 import unicodedata
+import string
 
-import mysql.connector
+import MySQLdb
 
 import billboard
 import musicbrainzngs as mb
 
-MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'root'
-MYSQL_DB_NAME = 'top_music'
-MYSQL_HOST = 'localhost'
+MYSQL_USER = 'DbMysql08'
+MYSQL_PASSWORD = 'DbMysql08'
+MYSQL_DB_NAME = 'DbMysql08'
+MYSQL_HOST = 'mysqlsrv.cs.tau.ac.il'
 
 logger = logging.getLogger('TopMusicFiller')
 logger.setLevel(logging.DEBUG)
@@ -37,7 +39,7 @@ def db_cursor(commit_in_the_end):
     '''
     A wrapper that returns a cursor to the DB and makes to to clean everything up in when finished
     '''
-    cnx = mysql.connector.connect(user=MYSQL_USER, database=MYSQL_DB_NAME, password=MYSQL_PASSWORD)
+    cnx = MySQLdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
     cursor = cnx.cursor()
     try:
         yield cursor
@@ -129,6 +131,7 @@ def insert_artist(artist_name, is_solo, country_code, mb_id):
     '''
     Inserts a new artist into the DB and returns his id
     '''
+    artist_name = re.sub("[\"']", '', artist_name)
     if mb_id is not None:
         query = 'INSERT INTO Artist (artist_name, source_country, is_solo, mb_id) VALUES ("%s", %s, %s, "%s")'
         values = (artist_name, country_code, is_solo, mb_id)
@@ -141,6 +144,7 @@ def insert_song(song_name, artist_id, release_date):
     '''
     Inserts a new song into the DB and returns it's id
     '''
+    song_name = re.sub("[\"']", '', song_name)
     if release_date:
         query = 'INSERT INTO Songs (artist_id, name, release_date) VALUES (%s, "%s", "%s")'
         values = (artist_id, song_name, release_date)
@@ -168,7 +172,7 @@ def insert_lyrics(song_id, song_lyrics):
     Inserts the lyrics to a song
     '''
     query = 'INSERT INTO Lyrics (song_id, lyrics) VALUES (%s, "%s")'
-    safe_lyrics = re.sub("[\"']", '', query)
+    safe_lyrics = re.sub("[\"']", '', song_lyrics)
     safe_lyrics = safe_lyrics[:21840]
     run_insert(query, (song_id, safe_lyrics), False)
 
@@ -177,6 +181,7 @@ def song_in_db(song_name, artist_id):
     Checks if we have a song with this name by this artist in the DB, and if so returns it's internal id
     '''
     query = 'SELECT song_id FROM Songs WHERE artist_id = %s AND name = "%s"'
+    song_name = re.sub("[\"']", '', song_name)
     return find_in_db(query, (artist_id, song_name))
 
 def artist_in_db(artist_name):
@@ -184,6 +189,7 @@ def artist_in_db(artist_name):
     Checks if we have an artist with this name in the DB, and if so returns his internal id
     '''
     query = 'SELECT artist_id FROM Artist WHERE artist_name = "%s"'
+    artist_name = re.sub("[\"']", '', artist_name)
     return find_in_db(query, (artist_name))
 
 def artist_in_db_by_mbid(artist_mbid):
@@ -222,6 +228,9 @@ def add_connection(group_id, mb_id, member_mb_id):
     Adds a connection between a single member of a band to the band
     '''
     member_id = find_artist_id_from_mb_id(member_mb_id)
+    if not member_id:
+        # If we're trying to add a member that doesn't exist we 
+        return
     query = 'INSERT INTO RelatedArtists (solo, band) VALUES (%s, %s)'
     run_insert(query, (member_id, group_id), False)
 
@@ -278,6 +287,10 @@ def validate_artist(artist_name):
         else:
             country = -1
         name = artist_json['name']
+        if (isinstance(name, unicode)):
+            name = unicodedata.normalize('NFKD', name).encode('ascii','ignore')
+        #printable = set(string.printable)
+        #name = filter(lambda x: x in printable, name)
         if 'type' in artist_json:
             is_solo = 'Person' == artist_json['type']
         else:
@@ -325,6 +338,8 @@ def download_group_connection(group_id, mb_id):
     '''
     links = try_mb_request(lambda: mb.get_artist_by_id(mb_id, "artist-rels"))
     per_artist = links['artist']
+    if 'artist-relation-list' not in per_artist:
+        return
     relation_list = per_artist['artist-relation-list']
     for relation in relation_list:
         if relation['type'] != 'member of band':
@@ -377,7 +392,14 @@ def extract_billboard_charts(num_of_weeks):
                 continue
             artist_id, song_id = validate_artist_song(parse_artist_name(song.artist), song.title)
             insert_chart(song_id, artist_id, song.rank, chart.date)
-        chart = billboard.ChartData('hot-100', chart.previousDate)
+        got_next_chart = False
+        while not got_next_chart:
+            try:
+                chart = billboard.ChartData('hot-100', chart.previousDate)
+                got_next_chart = True
+            except:
+                # This might happen because of temporary problems with billboard site
+                pass
         logger.debug("Got chart date for the week of %s", chart.date)
     connect_all_groups()
 
