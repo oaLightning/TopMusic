@@ -11,13 +11,13 @@ import json
 import unicodedata
 import string
 
-import mysql.connector
+import MySQLdb
 
 import billboard
 import musicbrainzngs as mb
 
-MYSQL_USER = 'root'
-MYSQL_PASSWORD = 'root'
+MYSQL_USER = 'DbMysql08'
+MYSQL_PASSWORD = 'DbMysql08'
 MYSQL_DB_NAME = 'DbMysql08'
 MYSQL_HOST = 'localhost'
 
@@ -39,7 +39,7 @@ def db_cursor(commit_in_the_end):
     '''
     A wrapper that returns a cursor to the DB and makes to to clean everything up in when finished
     '''
-    cnx = mysql.connector.connect(user=MYSQL_USER, database=MYSQL_DB_NAME, password=MYSQL_PASSWORD)
+    cnx = MySQLdb.connect(user=MYSQL_USER, database=MYSQL_DB_NAME, password=MYSQL_PASSWORD)
     cursor = cnx.cursor()
     try:
         yield cursor
