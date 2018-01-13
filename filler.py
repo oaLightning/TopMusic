@@ -19,7 +19,7 @@ import musicbrainzngs as mb
 MYSQL_USER = 'DbMysql08'
 MYSQL_PASSWORD = 'DbMysql08'
 MYSQL_DB_NAME = 'DbMysql08'
-MYSQL_HOST = 'localhost'
+MYSQL_HOST = 'mysqlsrv.cs.tau.ac.il'
 
 logger = logging.getLogger('TopMusicFiller')
 logger.setLevel(logging.DEBUG)
@@ -39,7 +39,7 @@ def db_cursor(commit_in_the_end):
     '''
     A wrapper that returns a cursor to the DB and makes to to clean everything up in when finished
     '''
-    cnx = MySQLdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD)
+    cnx = MySQLdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
     cursor = cnx.cursor()
     try:
         yield cursor
