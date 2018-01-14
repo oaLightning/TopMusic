@@ -203,8 +203,6 @@ def country_in_db(country_name):
     '''
     Checks if we have a country with this name in the DB
     '''
-    country_name = unicodedata.normalize('NFKD', country_name).encode('ascii','ignore')
-    country_name = re.sub("[\"']", '', country_name)
     query = 'SELECT country_id FROM Countries WHERE country_name = "%s"'
     return find_in_db(query, (country_name))
 
@@ -241,6 +239,8 @@ def validate_country(country_name):
     Makes sure we have the country in the DB, otherwise
     it downloads the relevant information about it and stores it in the DB
     '''
+    country_name = unicodedata.normalize('NFKD', country_name).encode('ascii','ignore')
+    country_name = re.sub("[\"']", '', country_name)
     country_id = country_in_db(country_name)
     if country_id:
         return country_id
