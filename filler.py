@@ -239,7 +239,8 @@ def validate_country(country_name):
     Makes sure we have the country in the DB, otherwise
     it downloads the relevant information about it and stores it in the DB
     '''
-    country_name = unicodedata.normalize('NFKD', country_name).encode('ascii','ignore')
+    if (isinstance(country_name, unicode)):
+        country_name = unicodedata.normalize('NFKD', country_name).encode('ascii','ignore')
     country_name = re.sub("[\"']", '', country_name)
     country_id = country_in_db(country_name)
     if country_id:
@@ -449,6 +450,9 @@ def extract_all_data(current_date=None):
     days_between = (current_date - start_date).days
     number_of_weeks = (days_between+6)/7 # This calculation is to make sure we don't miss any weeks
     extract_billboard_charts(number_of_weeks, current_date)
+
+def extract_remaining_data():
+    extract_all_data(LAST_KNOWN_DATE)
 
 def clear_all_data():
     '''
