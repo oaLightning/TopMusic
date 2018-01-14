@@ -255,6 +255,7 @@ def get_song_lyrics(song_name, artist_name):
     Downlodas lyrics to a song given it's name and artist
     '''
     logger.debug('Trying to fetch lyrics for %s by %s', song_name, artist_name)
+    song_name = re.sub("[\"']", '', song_name)
     full_url = 'https://api.lyrics.ovh/v1/{}/{}'.format(artist_name, song_name)
     full_url = urllib.quote(full_url, safe="%/:=&?~#+!$,;'@()*[]")
     request = urllib2.Request(full_url)
@@ -470,7 +471,7 @@ def clear_all_data():
         cursor.execute("DELETE FROM Countries")
 
 
-LAST_KNOWN_DATE = datetime(1983, 8, 27)
+LAST_KNOWN_DATE = datetime(1981, 8, 22)
 
 if '__main__' == __name__:
     extract_all_data(start_from)
