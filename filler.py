@@ -239,6 +239,9 @@ def validate_country(country_name):
     Makes sure we have the country in the DB, otherwise
     it downloads the relevant information about it and stores it in the DB
     '''
+    # This is to short circuit for artists where we don't know the source country
+    if -1 == country_name:
+        return -1
     if (isinstance(country_name, unicode)):
         country_name = unicodedata.normalize('NFKD', country_name).encode('ascii','ignore')
     country_name = re.sub("[\"']", '', country_name)
