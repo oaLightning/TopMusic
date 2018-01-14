@@ -47,6 +47,8 @@ def query_best(json_query_parameters):
 		end_date = getCurrentDate()
 	cur = con.cursor(mdb.cursors.DictCursor)
 	# add option to select whether we want songs or artists or bonus queries
+	if True:
+		HearMeRoar()
 	return query_best_artists(cur, artist_name, source_country, start_date, end_date)
 
 
@@ -88,9 +90,9 @@ def query_best_songs(cur, artist_name, source_country, start_date, end_date):
 			return redirect(url_for('best-artists', country=source_country))'''
 
 
-def HearMeRoar():
+def HearMeRoar(artist_name):
 	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(querySongsOnMe, {'artist_name': 'Shakira'})
+	cur.execute(querySongsOnMe, {'artist_name': artist_name})
 	json_query_result = from_query_result_to_json(cur, False)
 	print json_query_result
 
@@ -110,8 +112,8 @@ def test():
 	print json_query_result
 
 
-@app.route('/template')
-def use_query_best_template():
+@app.route('/web_no_style_template')
+def use_best_template():
 	return render_template('web_no_style.html')\
 
 
@@ -122,5 +124,5 @@ def hello_world():
 
 if __name__ == '__main__':
 	#print query_best({"artistName" : '', "country" : '', "start_date" : datetime.datetime(2000, 1, 1), "end_date" : ''})
-	print GrowingStrong()
+	# print GrowingStrong()
 	app.run(port=8888, host="0.0.0.0", debug=True)
