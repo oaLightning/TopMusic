@@ -302,6 +302,11 @@ def validate_artist(artist_name):
         artist_id = artist_in_db_by_mbid(mb_id)
         if artist_id:
             return artist_id
+        # This is needed yet again because the name might end up being duplicate after
+        # we read the name and make it safe to work with
+        artist_id = artist_in_db(name)
+        if artist_id:
+            return artist_id
     return insert_artist(name, is_solo=is_solo, country_code=country_code, mb_id=mb_id)
 
 def validate_artist_song(artist_name, song_name):
