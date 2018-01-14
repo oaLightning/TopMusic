@@ -385,12 +385,15 @@ def pull_week(date):
         artist_id, song_id = validate_artist_song(parse_artist_name(song.artist), song.title)
         insert_chart(song_id, artist_id, song.rank, date)
     
-def extract_billboard_charts(num_of_weeks):
+def extract_billboard_charts(num_of_weeks, start_week=None):
     '''
     Extracts num_of_weeks weeks of charts (starting from current) from billboard.com
     '''
     logger.info("Downloading billboard charts for %s weeks", num_of_weeks)
-    chart = billboard.ChartData('hot-100')
+    if start_week is not None:
+        chart = billboard.ChartData('hot-100', date=str(start_week)[:10])
+    else:
+        chart = billboard.ChartData('hot-100')
     logger.debug("Got chart date for the week of %s", chart.date)
     for x in range(0, num_of_weeks):
         for song in chart:
@@ -445,7 +448,7 @@ def extract_all_data(current_date=None):
         current_date = datetime(current_date.year, current_date.month, current_date.day)
     days_between = (current_date - start_date).days
     number_of_weeks = (days_between+6)/7 # This calculation is to make sure we don't miss any weeks
-    extract_billboard_charts(number_of_weeks)
+    extract_billboard_charts(number_of_weeks, current_date)
 
 def clear_all_data():
     '''
