@@ -203,6 +203,8 @@ def country_in_db(country_name):
     '''
     Checks if we have a country with this name in the DB
     '''
+    country_name = unicodedata.normalize('NFKD', country_name).encode('ascii','ignore')
+    country_name = re.sub("[\"']", '', country_name)
     query = 'SELECT country_id FROM Countries WHERE country_name = "%s"'
     return find_in_db(query, (country_name))
 
@@ -432,13 +434,15 @@ def populate_artists_and_songs(num_of_weeks): #date in the form of YYYY-MM-DD
             insert_song(song.title, artist_id, DUMMY_DATE)
         chart = billboard.ChartData('hot-100', chart.previousDate)
 
-def extract_all_data():
+def extract_all_data(current_date=None):
     '''
     Extracts all the billboard data from the start untill the current day
+    Expects the current_date to come as a datetime object (if it's present)
     '''
     start_date = datetime(1954, 1, 1)
-    current_date = datetime.today()
-    current_date = datetime(current_date.year, current_date.month, current_date.day)
+    if current_date is None:
+        current_date = datetime.today()
+        current_date = datetime(current_date.year, current_date.month, current_date.day)
     days_between = (current_date - start_date).days
     number_of_weeks = (days_between+6)/7 # This calculation is to make sure we don't miss any weeks
     extract_billboard_charts(number_of_weeks)
@@ -456,5 +460,7 @@ def clear_all_data():
         cursor.execute("DELETE FROM Countries")
 
 
+LAST_KNOWN_DATE = datetime(1983, 8, 27)
+
 if '__main__' == __name__:
-    extract_all_data()
+    extract_all_data(start_from)
