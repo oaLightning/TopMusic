@@ -87,7 +87,7 @@ def retry_times(request_call):
                 logger.warn("Got exception while running on attempt %s/%s: %s", i, ATTEMPTS, e)
                 last_exception = e
         logger.error("Failed doing operation %s time, failing", ATTEMPTS)
-        raise e
+        return None
     return try_times
 
 def try_mb_request(request_call):
@@ -239,6 +239,12 @@ def validate_country(country_name):
     Makes sure we have the country in the DB, otherwise
     it downloads the relevant information about it and stores it in the DB
     '''
+    # This is to short circuit for artists where we don't know the source country
+    if -1 == country_name:
+        return -1
+    if (isinstance(country_name, unicode)):
+        country_name = unicodedata.normalize('NFKD', country_name).encode('ascii','ignore')
+    country_name = re.sub("[\"']", '', country_name)
     country_id = country_in_db(country_name)
     if country_id:
         return country_id
@@ -249,6 +255,12 @@ def get_song_lyrics(song_name, artist_name):
     Downlodas lyrics to a song given it's name and artist
     '''
     logger.debug('Trying to fetch lyrics for %s by %s', song_name, artist_name)
+    if (isinstance(song_name, unicode)):
+        song_name = unicodedata.normalize('NFKD', song_name).encode('ascii','ignore')
+    song_name = re.sub("[\"']", '', song_name)
+    if (isinstance(artist_name, unicode)):
+        artist_name = unicodedata.normalize('NFKD', artist_name).encode('ascii','ignore')
+    artist_name = re.sub("[\"']", '', artist_name)
     full_url = 'https://api.lyrics.ovh/v1/{}/{}'.format(artist_name, song_name)
     full_url = urllib.quote(full_url, safe="%/:=&?~#+!$,;'@()*[]")
     request = urllib2.Request(full_url)
@@ -273,7 +285,7 @@ def validate_artist(artist_name):
         return artist_id
     logger.debug("Getting MusicBrainz info for %s", artist_name)
     response = try_mb_request(lambda: mb.search_artists(artist=artist_name))
-    if 0 == response['artist-count']:
+    if (response is None) or (0 == response['artist-count']):
         logger.warning('Got 0 possible artists for "%s", skipping', artist_name)
         country = -1
         country_code = validate_country(country)
@@ -302,6 +314,11 @@ def validate_artist(artist_name):
         artist_id = artist_in_db_by_mbid(mb_id)
         if artist_id:
             return artist_id
+        # This is needed yet again because the name might end up being duplicate after
+        # we read the name and make it safe to work with
+        artist_id = artist_in_db(name)
+        if artist_id:
+            return artist_id
     return insert_artist(name, is_solo=is_solo, country_code=country_code, mb_id=mb_id)
 
 def validate_artist_song(artist_name, song_name):
@@ -315,7 +332,7 @@ def validate_artist_song(artist_name, song_name):
         return artist_id, song_id
     logger.debug("Getting MusicBrainz info for %s by %s", song_name, artist_name)
     response = try_mb_request(lambda: mb.search_recordings(artist=artist_name, release=song_name))
-    if 0 != response['recording-count']:
+    if (response is not None) and (0 != response['recording-count']):
         recording_json = response['recording-list'][0] # Currentyl we take the first, maybe we should check?
         release_date = None
         if 'release-list' in recording_json:
@@ -337,6 +354,9 @@ def download_group_connection(group_id, mb_id):
     Downloads and connects the members of a specific group
     '''
     links = try_mb_request(lambda: mb.get_artist_by_id(mb_id, "artist-rels"))
+    if links is None:
+        logger.warning('Didnt find any artists related to %s "%s"', group_id, mb_id)
+        return
     per_artist = links['artist']
     if 'artist-relation-list' not in per_artist:
         return
@@ -378,12 +398,15 @@ def pull_week(date):
         artist_id, song_id = validate_artist_song(parse_artist_name(song.artist), song.title)
         insert_chart(song_id, artist_id, song.rank, date)
     
-def extract_billboard_charts(num_of_weeks):
+def extract_billboard_charts(num_of_weeks, start_week=None):
     '''
     Extracts num_of_weeks weeks of charts (starting from current) from billboard.com
     '''
     logger.info("Downloading billboard charts for %s weeks", num_of_weeks)
-    chart = billboard.ChartData('hot-100')
+    if start_week is not None:
+        chart = billboard.ChartData('hot-100', date=str(start_week)[:10])
+    else:
+        chart = billboard.ChartData('hot-100')
     logger.debug("Got chart date for the week of %s", chart.date)
     for x in range(0, num_of_weeks):
         for song in chart:
@@ -427,16 +450,21 @@ def populate_artists_and_songs(num_of_weeks): #date in the form of YYYY-MM-DD
             insert_song(song.title, artist_id, DUMMY_DATE)
         chart = billboard.ChartData('hot-100', chart.previousDate)
 
-def extract_all_data():
+def extract_all_data(current_date=None):
     '''
     Extracts all the billboard data from the start untill the current day
+    Expects the current_date to come as a datetime object (if it's present)
     '''
     start_date = datetime(1954, 1, 1)
-    current_date = datetime.today()
-    current_date = datetime(current_date.year, current_date.month, current_date.day)
+    if current_date is None:
+        current_date = datetime.today()
+        current_date = datetime(current_date.year, current_date.month, current_date.day)
     days_between = (current_date - start_date).days
     number_of_weeks = (days_between+6)/7 # This calculation is to make sure we don't miss any weeks
-    extract_billboard_charts(number_of_weeks)
+    extract_billboard_charts(number_of_weeks, current_date)
+
+def extract_remaining_data():
+    extract_all_data(LAST_KNOWN_DATE)
 
 def clear_all_data():
     '''
@@ -451,5 +479,7 @@ def clear_all_data():
         cursor.execute("DELETE FROM Countries")
 
 
+LAST_KNOWN_DATE = datetime(1972, 10, 28)
+
 if '__main__' == __name__:
-    extract_all_data()
+    extract_all_data(start_from)
