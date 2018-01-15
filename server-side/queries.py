@@ -6,7 +6,7 @@ querySongsOnMe =\
 	"WHERE Artist.artist_name = %(artist_name)s " \
 	"AND MATCH(Lyrics.lyrics) AGAINST(%(artist_name)s IN BOOLEAN MODE);"
 
-#top of songs Artist for date-range excluding bands
+#top of songs Artist for date-range including bands
 # I assume the position of each song is between 1-100
 queryTopOfArtist =\
 	"SELECT s.artist_name AS artist, s.name AS song_name AS song " \
@@ -70,7 +70,7 @@ queryTopArtistsInTimeRange =\
 	"GROUP BY Artist.artist_id " \
 	"ORDER BY sum(100-Chart.position);"
 
-#find singers who's rank in the last year was higher than in any previous one
+#find singers who's rank in the given year was higher than in any previous one
 queryGrowingStrong =\
 	"SELECT a1.artist_name AS artist, sum(100-Chart.position) AS rank " \
 	"FROM Artist AS a1 INNER JOIN Songs ON a1.artist_id = Songs.artist_id " \
@@ -82,7 +82,7 @@ queryGrowingStrong =\
 	"FROM Artist AS a2 INNER JOIN Songs ON a2.artist_id = Songs.artist_id " \
 	"INNER JOIN Chart ON Songs.song_id = Chart.song_id " \
 	"WHERE a1.artist_id = a2.artist_id " \
-	"AND YEAR(Chart.chart_date) < %(current_year)s " \
+	"AND YEAR(Chart.chart_date) < %(year)s " \
 	"GROUP BY YEAR(Chart.chart_date)" \
 	");"
 
@@ -96,6 +96,7 @@ queryAtTheTopOfTheGame =\
 	"SELECT sum(100-Chart.position) " \
 	"FROM Artist INNER JOIN Songs ON Artist.artist_id = Songs.artist_id " \
 	"INNER JOIN Chart ON Songs.song_id = Chart.song_id " \
+	"WHERE Chart.chart_date BETWEEN %(start_date)s AND %(end_date)s " \
 	"GROUP BY Artist.artist_id, YEAR(Songs.release_date) " \
 	");"
 
@@ -107,4 +108,5 @@ querySongsOnMyKingdom =\
 	"INNER JOIN Countries ON Artist.source_country = Countries.country_id " \
 	"INNER JOIN Lyrics ON Songs.song_id = Lyrics.song_id " \
 	"WHERE Countries.country_name = @country " \
+	"AND Songs.release_date BETWEEN %(start_date)s AND %(end_date)s " \
 	"AND MATCH(Lyrics.lyrics) AGAINST(@country IN BOOLEAN MODE);"
