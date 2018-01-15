@@ -46,24 +46,16 @@ def query_on_country():
 	if end_date == '':
 		end_date = getCurrentDate()
 	query_option = request.form['query_option']
+	if source_country == '':
+		return render_template('web_no_style_error.html', msg='You need to enter a country name before pressing submit')
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'topSongs':
-		if source_country != '':
-			cur.execute(queryTopSongsOfCountryInTimeRange, {'country':source_country, 'start_date': start_date, 'end_date': start_date})
-		else:
-			cur.execute(queryTopSongsInTimeRange, {'start_date': start_date, 'end_date': start_date})
+		cur.execute(queryTopSongsOfCountryInTimeRange, {'country':source_country, 'start_date': start_date, 'end_date': start_date})
 	elif query_option == 'topArtists':
-		if source_country != '':
-			cur.execute(queryTopArtistsOfCountryInTimeRange, {'country': source_country, 'start_date': start_date, 'end_date': start_date})
-		else:
-			cur.execute(queryTopArtistsInTimeRange, {'start_date': start_date, 'end_date': start_date})
+		cur.execute(queryTopArtistsOfCountryInTimeRange, {'country': source_country, 'start_date': start_date, 'end_date': start_date})
 	else:
 		# query_option == 'patrioticSongs'
-		if source_country != '':
-			cur.execute(querySongsOnMe, {'country': source_country, 'start_date': start_date, 'end_date': start_date})
-		else:
-			#error
-			return render_template('web_no_style_error.html', msg='You must enter a country name before querying')
+		cur.execute(querySongsOnMe, {'country': source_country, 'start_date': start_date, 'end_date': start_date})
 	result = from_query_result_to_json(cur, False)
 	rows = cur.rowcount
 	return render_template('web_no_style_results.html', num_of_rows=rows, col1_name='song', col2_name='artist', list_result=result)
@@ -78,27 +70,43 @@ def query_on_artist():
 	if end_date == '':
 		end_date = getCurrentDate()
 	query_option = request.form['query_option']
+	if artist_name == '':
+		return render_template('web_no_style_error.html', msg='You need to enter an artist name before pressing submit')
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'topSongs':
-		if artist_name != '':
-			cur.execute(queryTopOfArtist, {'artistName':artist_name, 'start_date': start_date, 'end_date': start_date})
-		else:
-			cur.execute(queryTopSongsInTimeRange, {'start_date': start_date, 'end_date': start_date})
+		cur.execute(queryTopOfArtist, {'artistName':artist_name, 'start_date': start_date, 'end_date': start_date})
 	elif query_option == 'bestYear':
-		if artist_name != '':
-			cur.execute(queryGrowingStrong, {'artistName': artist_name, 'year': getCurrentDate().year})
-		else:
-			cur.execute(queryTopArtistsInTimeRange, {'start_date': start_date, 'end_date': start_date})
+		cur.execute(queryGrowingStrong, {'artistName': artist_name, 'year': getCurrentDate().year})
 	else:
 		# query_option == 'narcissisticSongs'
-		if artist_name != '':
-			cur.execute(querySongsOnMe, {'artistName': artist_name, 'start_date': start_date, 'end_date': start_date})
-		else:
-			#error
-			return render_template('web_no_style_error.html', msg='You must enter an artist name before querying')
+		cur.execute(querySongsOnMe, {'artistName': artist_name, 'start_date': start_date, 'end_date': start_date})
 	result = from_query_result_to_json(cur, False)
 	rows = cur.rowcount
 	return render_template('web_no_style_results.html', num_of_rows=rows, col1_name='song', col2_name='artist', list_result=result)
+
+
+@app.route('/queryTop100', methods=['POST', 'GET'])
+def query_top_of_the_world():
+	start_date = request.form['start_date']
+	if start_date == '':
+		start_date = start_of_billboard100_date
+	end_date = request.form['end_date']
+	if end_date == '':
+		end_date = getCurrentDate()
+	query_option = request.form['query_option']
+	cur = con.cursor(mdb.cursors.DictCursor)
+	if query_option == 'topSongs':
+		cur.execute(queryTopSongsInTimeRange, {'start_date': start_date, 'end_date': start_date})
+		col1 = 'artist'
+		col2 = 'song'
+	else:
+		# query_option == 'topArtists'
+		cur.execute(queryTopArtistsInTimeRange, {'start_date': start_date, 'end_date': start_date})
+		col1 = 'artist'
+		col2 = 'score'
+	result = from_query_result_to_json(cur, False)
+	rows = cur.rowcount
+	return render_template('web_no_style_results.html', num_of_rows=rows, col1_name=col1, col2_name=col2, list_result=result)
 
 
 @app.route('/queryTopOfTheWorld', methods=['POST', 'GET'])
