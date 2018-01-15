@@ -87,7 +87,7 @@ def retry_times(request_call):
                 logger.warn("Got exception while running on attempt %s/%s: %s", i, ATTEMPTS, e)
                 last_exception = e
         logger.error("Failed doing operation %s time, failing", ATTEMPTS)
-        raise e
+        return None
     return try_times
 
 def try_mb_request(request_call):
@@ -285,7 +285,7 @@ def validate_artist(artist_name):
         return artist_id
     logger.debug("Getting MusicBrainz info for %s", artist_name)
     response = try_mb_request(lambda: mb.search_artists(artist=artist_name))
-    if 0 == response['artist-count']:
+    if (response is None) or (0 == response['artist-count']):
         logger.warning('Got 0 possible artists for "%s", skipping', artist_name)
         country = -1
         country_code = validate_country(country)
@@ -332,7 +332,7 @@ def validate_artist_song(artist_name, song_name):
         return artist_id, song_id
     logger.debug("Getting MusicBrainz info for %s by %s", song_name, artist_name)
     response = try_mb_request(lambda: mb.search_recordings(artist=artist_name, release=song_name))
-    if 0 != response['recording-count']:
+    if (response is not None) and (0 != response['recording-count']):
         recording_json = response['recording-list'][0] # Currentyl we take the first, maybe we should check?
         release_date = None
         if 'release-list' in recording_json:
@@ -354,6 +354,9 @@ def download_group_connection(group_id, mb_id):
     Downloads and connects the members of a specific group
     '''
     links = try_mb_request(lambda: mb.get_artist_by_id(mb_id, "artist-rels"))
+    if links is None:
+        logger.warning('Didnt find any artists related to %s "%s"', group_id, mb_id)
+        return
     per_artist = links['artist']
     if 'artist-relation-list' not in per_artist:
         return
@@ -476,7 +479,7 @@ def clear_all_data():
         cursor.execute("DELETE FROM Countries")
 
 
-LAST_KNOWN_DATE = datetime(1979, 1, 6)
+LAST_KNOWN_DATE = datetime(1972, 10, 28)
 
 if '__main__' == __name__:
     extract_all_data(start_from)
