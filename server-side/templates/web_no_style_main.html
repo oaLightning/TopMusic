@@ -1,0 +1,46 @@
+
+<html>
+<head>
+
+<style>
+	table {
+		font-family: arial, sans-serif;
+		border-collapse: collapse;
+		width: 100%;
+	}
+
+	td, th {
+		border: 1px solid #dddddd;
+		text-align: left;
+		padding: 8px;
+	}
+
+	tr:nth-child(even) {
+		background-color: #dddddd;
+	}
+</style>
+</head>
+
+<body>
+
+<h1>MUSIC BEST HITS</h1>
+<form action = "http://localhost:8883/queryOnCountry" method = "post" name="myForm" >
+Artist name: <input type="text" name="artistName"><br>
+Country: <input type="text" name="country"><br>
+<br>`+``
+Enter start date after 1970-12-31:<br>
+<input type="date" name="start_date" min="1970-12-31" value="" max="2018-01-02"><br><br>
+Enter end date before 2018-01-02:<br>
+<input type="date" name="end_date" min="1970-12-31" value="" max="2018-01-02"><br><br>
+<br>
+<input type="submit" value="submit" >
+<select name="query_option">
+  <option value="topSongs">topSongs</option>
+  <option value="topArtists">topArtists</option>
+  <option value="patrioticSongs">patrioticSongs</option>
+</select>
+</form>
+
+<div id="divID"></div>
+</body>
+</html>
