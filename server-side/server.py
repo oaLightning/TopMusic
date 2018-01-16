@@ -86,7 +86,7 @@ def query_on_artist():
 
 
 @app.route('/queryTop100', methods=['POST', 'GET'])
-def query_top_of_the_world():
+def query_top_100():
 	start_date = request.form['start_date']
 	if start_date == '':
 		start_date = start_of_billboard100_date
@@ -131,10 +131,10 @@ def test():
 
 
 @app.route('/', methods=['POST', 'GET'])
-@app.route('/web_no_style_main', methods=['POST', 'GET'])
+@app.route('/main_page', methods=['POST', 'GET'])
 def use_best_template():
-	return render_template('web_no_style_main.html')\
+	return render_template('main_page.html')\
 
 
 if __name__ == '__main__':
-	app.run(port=8883, host="localhost", debug=True)
+	app.run(port=8888, host="localhost", debug=True)
