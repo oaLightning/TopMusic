@@ -129,6 +129,17 @@ def test():
 	rows = cur.rowcount
 	return render_template('web_no_style_results.html', num_of_rows=rows, col1_name='artist', col2_name='source_country_id', list_result=result)
 
+@app.route('/country_search', methods=['POST', 'GET'])
+def use_country_search_template():
+	return render_template('country_search.html')
+
+@app.route('/artist_search', methods=['POST', 'GET'])
+def use_artist_search_template():
+	return render_template('artist_search.html')
+
+@app.route('/top_100', methods=['POST', 'GET'])
+def use_top_100_template():
+	return render_template('top_100.html')
 
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/main_page', methods=['POST', 'GET'])
