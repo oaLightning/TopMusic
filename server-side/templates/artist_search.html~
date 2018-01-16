@@ -42,8 +42,6 @@
 
 </head>
 
-
-
 <body id="page-top">
 
 <!-- Navigation -->
@@ -63,6 +61,9 @@
                     <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="country_search">Search By Country</a>
                 </li>
                 <li class="nav-item mx-0 mx-lg-1">
+                    <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="top_100">Top 100</a>
+                </li>
+                <li class="nav-item mx-0 mx-lg-1">
                     <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="main_page">Back To Front Page</a>
                 </li>
             </ul>
@@ -74,16 +75,16 @@
 <header class="masthead bg-primary text-white text-center">
     <div class="container">
         <img class="img-fluid mb-5 d-block mx-auto" src="/static/img/note.jpg" alt="">
-        <h1 class="text-uppercase mb-0">Top 100</h1>
+        <h1 class="text-uppercase mb-0">Search By Artist</h1>
         <hr class="star-light">
-        <h2 class="font-weight-light mb-0">Search By Dates</h2>
+        <h2 class="font-weight-light mb-0">Search By Artist Name and Possible Dates. </h2>
         <br><br>
         <div class="row">
             <div class="col-lg-4 ml-auto">
-                <p class="lead">Hi You! There are 2 types of searches : Songs Search - returns Top 100 songs from start time to end time if specified (else, of whole times).</p>
+                <p class="lead">Hi You! There are 3 types of searches : Best Year Search- returns years from start date to end date (if specified) which are considered to be the "best" of the artist (best is considered by billboard charts appearances through time).</p>
             </div>
             <div class="col-lg-4 mr-auto">
-                <p class="lead">Singers Search - returns top 100  singers who are considered to be in top 100 singers from start time to end time (if not specified top 100 singers of all times).</p>
+                <p class="lead">Best Songs Search - returns best songs of specified artist (from given dates if specified if not we return top 100 songs) and Self Adored Songs Search - returns songs which artist's name appeared in with in specified dated (if given).</p>
             </div>
         </div>
     </div>
@@ -94,32 +95,32 @@
 <!-- Contact Section -->
 <section id="contact">
     <div class="container">
-        <h2 class="text-center text-uppercase text-secondary mb-0">TOP 100</h2>
+        <h2 class="text-center text-uppercase text-secondary mb-0">Search By Artist</h2>
         <hr class="star-dark mb-5">
 
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <!-- To configure the contact form email address, go to mail/contact_me.php and update the email address in the PHP file on line 19. -->
                 <!-- The form should work on most web servers, but if the form is not working you may need to configure your web server differently. -->
-                <form action = "http://localhost:8888/queryOnTop100" method = "post" name="myForm" >
+                <form action = "http://localhost:8888/queryOnArtist" method = "post" name="myForm" >
                     <!--<div class="control-group">-->
                         <!--<div class="form-group floating-label-form-group controls mb-0 pb-2">-->
                             <!--<br><br>-->
                             <!--Song name : <input type="text" name="songName" ><br>-->
                         <!--</div>-->
                     <!--</div>-->
+                    <div class="control-group">
+                        <div class="form-group floating-label-form-group controls mb-0 pb-2">
+                            <br><br>
+                            Artist name : <input type="text" name="artistName"><br>
+                        </div>
+                    </div>
                     <!--<div class="control-group">-->
                         <!--<div class="form-group floating-label-form-group controls mb-0 pb-2">-->
                             <!--<br><br>-->
-                            <!--Artist name : <input type="text" name="artistName"><br>-->
+                            <!--Country : <input type="text" name="country"><br>-->
                         <!--</div>-->
                     <!--</div>-->
-                    <!--<div class="control-group">-->
-                        <!--&lt;!&ndash;<div class="form-group floating-label-form-group controls mb-0 pb-2">&ndash;&gt;-->
-                            <!--&lt;!&ndash;<br><br>&ndash;&gt;-->
-                            <!--&lt;!&ndash;Country : <input type="text" name="country"><br>&ndash;&gt;-->
-                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
-                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
                     <div class="control-group">
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
                             <br><br>
@@ -141,8 +142,9 @@
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
                             <br>Enter Type Of Search : <br><br>
                             <select name="select_bar" size="2">
-                                <option value="Songs">Songs</option>
-                                <option value="Singers">Singers</option>
+                                <option value="Best Year">Best Year</option>
+                                <option value="Top Songs">Top Songs</option>
+                                <option value= "Self adored Songs">Self adored Songs</option>
                             </select>
                         </div>
                     </div>
@@ -159,9 +161,9 @@
         </div>
     </div>
 </section>
-
 </body>
 </html>
+
 
 
 

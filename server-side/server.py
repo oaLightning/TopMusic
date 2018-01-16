@@ -146,6 +146,10 @@ def use_top_100_template():
 def use_best_template():
 	return render_template('main_page.html')\
 
+@app.route('/error', methods=['POST', 'GET'])
+def use_error_template():
+	return render_template('web_no_style_error.html', msg='blah')\
+
 
 if __name__ == '__main__':
 	app.run(port=8888, host="localhost", debug=True)
