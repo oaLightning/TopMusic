@@ -130,6 +130,16 @@ queryAtTheTopOfTheGame =\
 	"GROUP BY Artist.artist_id, YEAR(Songs.release_date) " \
 	");"
 
+queryBestYears =\
+	"SELECT Artist.artist_name, YEAR(Songs.release_date) " \
+	"FROM Artist INNER JOIN Songs ON Artist.artist_id = Songs.artist_id " \
+	"INNER JOIN Chart ON Songs.song_id = Chart.song_id " \
+	"WHERE Artist.artist_name = %(artist_name)s " \
+	"AND Chart.chart_date BETWEEN %(start_date)s AND %(end_date)s " \
+	"GROUP BY Artist.artist_id, YEAR(Songs.release_date) " \
+	"ORDER BY sum(100-Chart.position) " \
+	"LIMIT 10;"
+
 # find artists from given country who sing on it
 querySongsOnCountry =\
 "SELECT Artist.artist_name AS col1, Songs.name AS col2 " \

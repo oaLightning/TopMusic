@@ -41,10 +41,10 @@ def from_query_result_to_json(cur, row_headers, isDecimal):
 @app.route('/queryOnCountry', methods=['POST', 'GET'])
 def query_on_country():
 	source_country = request.form['country']
-	start_date = request.form['start_date']
+	start_date = request.form['start_date'][:10]
 	if start_date == '':
 		start_date = start_of_billboard100_date
-	end_date = request.form['end_date']
+	end_date = request.form['end_date'][:10]
 	if end_date == '':
 		end_date = getCurrentDate()
 	query_option = request.form['select_bar']
@@ -78,10 +78,10 @@ def query_on_country():
 def query_on_artist():
 	artist_name = request.form['artistName']
 	print "artistName = " + artist_name +"\n\n\\n"
-	start_date = request.form['start_date']
+	start_date = request.form['start_date'][:10]
 	if start_date == '':
 		start_date = start_of_billboard100_date
-	end_date = request.form['end_date']
+	end_date = request.form['end_date'][:10]
 	if end_date == '':
 		end_date = getCurrentDate()
 	query_option = request.form['select_bar']
@@ -97,8 +97,8 @@ def query_on_artist():
                 #            {'artist_name':artist_name, 'start_date': start_date, 'end_date': start_date})
 	elif query_option == 'Best Year':
                 col2 = 'Year'
-		cur.execute(queryGrowingStrong,
-                            {'artist_name': artist_name, 'year': getCurrentDate().year})
+		cur.execute(queryBestYears,
+                            {'artist_name': artist_name, 'start_date': start_date, 'end_date': start_date})
 	else:
 		# query_option == 'Self adored Songs'
 		col2 = 'Song'
@@ -114,10 +114,10 @@ def query_on_artist():
 
 @app.route('/queryTop100', methods=['POST', 'GET'])
 def query_top_100():
-	start_date = request.form['start_date']
+	start_date = request.form['start_date'][:10]
 	if start_date == '':
 		start_date = start_of_billboard100_date
-	end_date = request.form['end_date']
+	end_date = request.form['end_date'][:10]
 	if end_date == '':
 		end_date = getCurrentDate()
 	query_option = request.form['select_bar']
