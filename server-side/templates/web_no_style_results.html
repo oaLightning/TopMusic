@@ -37,8 +37,8 @@
             {% for i in range( num_of_rows ) %}
 				<tr>
 					
-					<td class="wider">{{list_result[i].artistName }} </td>
-					<td class="wider">{{list_result[i].song }} </td>
+					<td class="wider">{{list_result[i][0] }} </td>
+					<td class="wider">{{list_result[i][1] }} </td>
 				</tr>
 			{% endfor %}
 
