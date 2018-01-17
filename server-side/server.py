@@ -152,24 +152,22 @@ def test():
                                col1_name='artist', col2_name='source_country_id', list_result=result)
 
 
-@app.route('/get_latest_chart', methods=['POST', 'GET'])
-def get_latest_chart():
+@app.route('/latest_chart', methods=['POST', 'GET'])
+def latest_chart():
         try:
                 extract_billboard_charts(1)
-                break
         except ValueError:
                 return render_template('error_or_empty_res.html',
                                        msg='Something went wrong :( Please try again!')    
-
         cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(getLatestChartDate)
         result = cur.fetchall()
 	rows = cur.rowcount
-	if rows != 110:
+	if rows != 100:
                 return render_template('error_or_empty_res.html',
                                        msg='Couldn\'t find any results. Please try again!')        
 	return render_template('web_table_result.html', num_of_rows=rows,
-                               col1_name=row_headers[0], col2_name=row_headers[1], list_result=result)
+                               col1_name='Artist', col2_name='Song', list_result=result)
 
 
 @app.route('/country_search', methods=['POST', 'GET'])
@@ -193,6 +191,9 @@ def use_best_template():
 def use_error_template():
 	return render_template('error_or_empty_res.html', msg='blah')\
 
+@app.route('/get_latest_chart', methods=['POST', 'GET'])
+def get_latest_chart():
+        return render_template('get_latest_chart.html', msg='blah')\
 
 if __name__ == '__main__':
 	app.run(port=8888, host="localhost", debug=True)
