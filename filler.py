@@ -402,6 +402,7 @@ def extract_billboard_charts(num_of_weeks, start_week=None):
     '''
     Extracts num_of_weeks weeks of charts (starting from current) from billboard.com
     '''
+    something_changed = 0;
     logger.info("Downloading billboard charts for %s weeks", num_of_weeks)
     if start_week is not None:
         chart = billboard.ChartData('hot-100', date=str(start_week)[:10])
@@ -415,6 +416,7 @@ def extract_billboard_charts(num_of_weeks, start_week=None):
                 continue
             artist_id, song_id = validate_artist_song(parse_artist_name(song.artist), song.title)
             insert_chart(song_id, artist_id, song.rank, chart.date)
+            something_changed = 1;
         got_next_chart = False
         while not got_next_chart:
             try:
@@ -424,7 +426,8 @@ def extract_billboard_charts(num_of_weeks, start_week=None):
                 # This might happen because of temporary problems with billboard site
                 pass
         logger.debug("Got chart date for the week of %s", chart.date)
-    connect_all_groups()
+    if(something_changed==1):
+        connect_all_groups()
 
 
 def parse_artist_name(name):
