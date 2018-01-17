@@ -14,30 +14,6 @@ def getCurrentDate():
 date_1970_01_31 = str(datetime.date(1970, 12, 31))
 con = mdb.connect(host='mysqlsrv.cs.tau.ac.il', db='DbMysql08', user='DbMysql08', passwd='DbMysql08')
 
-# class for parsing Decimal for json format
-# from https://stackoverflow.com/questions/1960516/python-json-serialize-a-decimal-object
-class DecimalEncoder(json.JSONEncoder):
-	def default(self, o):
-		if isinstance(o, decimal.Decimal):
-			return float(o)
-		return super(DecimalEncoder, self).default(o)
-
-
-#get result of MySQL query and convert it to json format.
-def from_query_result_to_json(cur, isDecimal):
-	row_headers=[x[0] for x in cur.description] # this will extract row headers
-        rows = cur.fetchall()
-        json_data=[]
-        print "\n"
-        for row in rows:
-                print row
-                json_data.append(dict(zip(row_headers,row)))
-        print "\n"
-        if isDecimal:
-                return json.dumps(json_data, cls = DecimalEncoder)
-        else:
-                return json.dumps(json_data)
-
 
 @app.route('/queryOnCountry', methods=['POST', 'GET'])
 def query_on_country():
@@ -52,15 +28,15 @@ def query_on_country():
 	query_option = request.form['select_bar']
 	if source_country == '':
 		return render_template('error_or_empty_res.html',
-                                       msg='You need to enter a country name before pressing submit')
-        print "start_date = " + start_date + ", end_date = " + end_date + "\n\n"
+							   msg='You need to enter a country name before pressing submit')
+	print "start_date = " + start_date + ", end_date = " + end_date + "\n\n"
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Top Songs':
-                col2 = 'Song'
+		col2 = 'Song'
 		cur.execute(queryTopSongsOfCountryInTimeRange,
                             {'country':source_country, 'start_date': start_date, 'end_date': end_date})
 	elif query_option == 'Top Singers':
-                col2 = 'Score'
+		col2 = 'Score'
 		cur.execute(queryTopArtistsOfCountryInTimeRange,
                             {'country': source_country, 'start_date': start_date, 'end_date': end_date})
 	else:
@@ -70,6 +46,9 @@ def query_on_country():
                             {'country': source_country, 'start_date': start_date, 'end_date': end_date})
 	result = cur.fetchall()
 	rows = cur.rowcount
+	if rows == 0:
+		return render_template('error_or_empty_res.html',
+							   msg='Couldn\'t find any results for country = ' + source_country + '. Please try again!')
 	print "rows = " + str(rows) + "\n"
 	return render_template('web_table_result.html', num_of_rows=rows,
                                col1_name='Artist', col2_name=col2, list_result=result)
@@ -89,14 +68,14 @@ def query_on_artist():
 	if artist_name == '':
 		return render_template('error_or_empty_res.html',
                                        msg='You need to enter an artist name before pressing submit')
-        print "start_date = " + start_date + ", end_date = " + end_date + "\n\n"
+	print "start_date = " + start_date + ", end_date = " + end_date + "\n\n"
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Top Songs':
-                col2 = 'Song'
+		col2 = 'Song'
 		cur.execute(queryTopOfArtist,
                             {'artist_name':artist_name, 'start_date': start_date, 'end_date': end_date})
 	elif query_option == 'Best Year':
-                col2 = 'Year'
+		col2 = 'Year'
 		cur.execute(queryBestYears,
                             {'artist_name': artist_name, 'start_date': start_date, 'end_date': end_date})
 	else:
@@ -106,9 +85,11 @@ def query_on_artist():
                             {'artist_name': artist_name, 'start_date': start_date, 'end_date': end_date})
 	result = cur.fetchall()
 	rows = cur.rowcount
-	print "rows = " + str(rows) + "\n"
-        return render_template('web_table_result.html', num_of_rows=rows,
-                               col1_name='Artist', col2_name=col2, list_result=result)
+	if rows == 0:
+		return render_template('error_or_empty_res.html',
+                                       msg='Couldn\'t find any results. for artist = ' + artist_name + '. Please try again!')
+	return render_template('web_table_result.html', num_of_rows=rows,
+						   col1_name='Artist', col2_name=col2, list_result=result)
 
 
 @app.route('/queryTop100', methods=['POST', 'GET'])
@@ -121,19 +102,24 @@ def query_top_100():
 		end_date = getCurrentDate()
 	query_option = request.form['select_bar']
 	print "start_date = " + start_date + ", end_date = " + end_date + "\n\n"
-        cur = con.cursor(mdb.cursors.DictCursor)
+	cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Songs':
 		cur.execute(queryTopSongsInTimeRange, {'start_date': start_date, 'end_date': end_date})
-		col1 = 'Song'
+		col1 = 'Artist'
+		col2 = 'Song'
 	else:
 		# query_option == 'Singers'
 		cur.execute(queryTopArtistsInTimeRange, {'start_date': start_date, 'end_date': end_date})
-		col1 = 'Srtist'
+		col1 = 'Artist'
+		col2 = 'Score'
 	result = cur.fetchall()
 	rows = cur.rowcount
+	if rows == 0:
+		return render_template('error_or_empty_res.html',
+                                       msg='Couldn\'t find any results. Please try again!')        
 	print "rows = " + str(rows) + "\n"
 	return render_template('web_table_result.html', num_of_rows=rows,
-                               col1_name=col1, col2_name='Score', list_result=result)
+                               col1_name=col1, col2_name=col2, list_result=result)
 
 
 @app.route('/queryTopOfTheWorld', methods=['POST', 'GET'])
@@ -144,9 +130,11 @@ def query_top_of_the_world():
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(queryAtTheTopOfTheGame, {'year':year})
 	row_headers=[x[0] for x in cur.description] # this will extract row headers
-        # result = from_query_result_to_json(cur, row_headers, False)
 	result = cur.fetchall()
 	rows = cur.rowcount
+	if rows == 0:
+		return render_template('error_or_empty_res.html',
+                                       msg='Couldn\'t find any results. Please try again!')        
 	return render_template('web_table_result.html', num_of_rows=rows,
                                col1_name=row_headers[0], col2_name=row_headers[1], list_result=result)
 
@@ -156,7 +144,6 @@ def test():
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute('SELECT Artist.artist_name Artist.source_country FROM Artist LIMIT 50;')
 	row_headers=[x[0] for x in cur.description] # this will extract row headers
-        #result = from_query_result_to_json(cur, row_headers, False)
 	result = cur.fetchall()
 	rows = cur.rowcount
 	return render_template('web_no_style_result.html', num_of_rows=rows,
@@ -178,10 +165,6 @@ def use_top_100_template():
 @app.route('/main_page', methods=['POST', 'GET'])
 def use_best_template():
 	return render_template('main_page.html')\
-
-@app.route('/error', methods=['POST', 'GET'])
-def use_error_template():
-	return render_template('error_or_empty_res.html', msg='blah')\
 
 
 if __name__ == '__main__':

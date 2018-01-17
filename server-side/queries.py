@@ -130,8 +130,9 @@ queryAtTheTopOfTheGame =\
 	"GROUP BY Artist.artist_id, YEAR(Songs.release_date) " \
 	");"
 
+# find for given artist his best 10 years
 queryBestYears =\
-	"SELECT Artist.artist_name, DATE_FORMAT(YEAR(Songs.release_date), '%Y') " \
+	"SELECT Artist.artist_name AS col1, YEAR(Songs.release_date)AS col2 " \
 	"FROM Artist INNER JOIN Songs ON Artist.artist_id = Songs.artist_id " \
 	"INNER JOIN Chart ON Songs.song_id = Chart.song_id " \
 	"WHERE Artist.artist_name = %(artist_name)s " \
