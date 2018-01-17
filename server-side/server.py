@@ -4,6 +4,7 @@ import json
 import MySQLdb as mdb
 from queries import *
 import decimal
+from filler import extract_billboard_charts
 
 app = Flask(__name__)
 
@@ -144,10 +145,32 @@ def test():
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute('SELECT Artist.artist_name Artist.source_country FROM Artist LIMIT 50;')
 	row_headers=[x[0] for x in cur.description] # this will extract row headers
+        #result = from_query_result_to_json(cur, row_headers, False)
 	result = cur.fetchall()
 	rows = cur.rowcount
 	return render_template('web_no_style_result.html', num_of_rows=rows,
                                col1_name='artist', col2_name='source_country_id', list_result=result)
+
+
+@app.route('/get_latest_chart', methods=['POST', 'GET'])
+def get_latest_chart():
+        try:
+                extract_billboard_charts(1)
+                break
+        except ValueError:
+                return render_template('error_or_empty_res.html',
+                                       msg='Something went wrong :( Please try again!')    
+
+        cur = con.cursor(mdb.cursors.DictCursor)
+	cur.execute(getLatestChartDate)
+        result = cur.fetchall()
+	rows = cur.rowcount
+	if rows != 110:
+                return render_template('error_or_empty_res.html',
+                                       msg='Couldn\'t find any results. Please try again!')        
+	return render_template('web_table_result.html', num_of_rows=rows,
+                               col1_name=row_headers[0], col2_name=row_headers[1], list_result=result)
+
 
 @app.route('/country_search', methods=['POST', 'GET'])
 def use_country_search_template():
@@ -165,6 +188,10 @@ def use_top_100_template():
 @app.route('/main_page', methods=['POST', 'GET'])
 def use_best_template():
 	return render_template('main_page.html')\
+
+@app.route('/error', methods=['POST', 'GET'])
+def use_error_template():
+	return render_template('error_or_empty_res.html', msg='blah')\
 
 
 if __name__ == '__main__':
