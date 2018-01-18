@@ -155,10 +155,32 @@ querySongsOnCountry =\
 
 # find week of most recent chart
 getLatestChart =\
-"SELECT Artist.artist_name AS col1, Songs.name AS col2 " \
-"FROM Songs INNER JOIN Artist ON Songs.artist_id = Artist.artist_id  " \
-"INNER JOIN Chart ON Songs.song_id = Chart.song_id " \
-"WHERE Chart.chart_date = ( "\
-"SELECT Chart.chart_date " \
-"FROM CHART " \
-"LIMIT 1);"
+	"SELECT Artist.artist_name AS col1, Songs.name AS col2 " \
+	"FROM Songs INNER JOIN Artist ON Songs.artist_id = Artist.artist_id  " \
+	"INNER JOIN Chart ON Songs.song_id = Chart.song_id " \
+	"WHERE Chart.chart_date = ( "" \
+	""SELECT Chart.chart_date " \
+	"FROM CHART " \
+	"LIMIT 1);"
+
+# update search count of artist
+updateSearchCountArtist =\
+	"UPDATE Artist " \
+	"SET Artist.search_score = Artist.search_score + 1 " \
+	"WHERE Artist.country_name = %(artist_name)s;"
+
+# update search count of country
+updateSearchCountCountry =\
+	"UPDATE Countries " \
+	"SET Countries.search_score = Countries.search_score + 1 " \
+	"WHERE Countries.country_name = %(country)s;"
+
+queryMostSearchedArtists =\
+	"SELECT Artist.artist_name AS col1, Artist.search_count AS col2 " \
+	"WHERE Artist.search_score > 0 " \
+	"ORDER BY Artist.search_score LIMIT 10;"
+
+queryMostSearchedCountries =\
+	"SELECT Countries.country_name AS col1, Countries.search_count AS col2 " \
+	"WHERE Countries.search_score > 0 " \
+	"ORDER BY Countries.search_score LIMIT 10;"

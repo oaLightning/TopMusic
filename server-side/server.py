@@ -1,12 +1,17 @@
+# -*- coding: utf-8 -*-
 from flask import Flask, render_template, redirect, request, url_for
 import datetime
 import json
+import os
+os.environ['PYTHON_EGG_CACHE'] = "./python_eggs"
 import MySQLdb as mdb
 from queries import *
 import decimal
 from filler import extract_billboard_charts
 
 app = Flask(__name__)
+
+app.config['SERVER_NAME'] = 'topmusic:40666'
 
 ## dd/mm/yyyy format
 def getCurrentDate():
@@ -189,11 +194,15 @@ def use_best_template():
 
 @app.route('/error', methods=['POST', 'GET'])
 def use_error_template():
-	return render_template('error_or_empty_res.html', msg='blah')\
+	return render_template('error_or_empty_res.html', msg='blah')
 
 @app.route('/get_latest_chart', methods=['POST', 'GET'])
 def get_latest_chart():
-        return render_template('get_latest_chart.html', msg='blah')\
+	return render_template('get_latest_chart.html', msg='blah')
+
+@app.route('/vote', methods=['POST', 'GET'])
+def get_latest_chart():
+	return render_template('vote.html')\
 
 if __name__ == '__main__':
-	app.run(port=8888, host="localhost", debug=True)
+	app.run(port=40666, host="0.0.0.0", debug=True)
