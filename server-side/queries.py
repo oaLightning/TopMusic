@@ -178,9 +178,23 @@ updateSearchCountCountry =\
 queryMostSearchedArtists =\
 	"SELECT Artist.artist_name AS col1, Artist.search_count AS col2 " \
 	"WHERE Artist.search_score > 0 " \
-	"ORDER BY Artist.search_score LIMIT 10;"
+	"ORDER BY Artist.search_score " \
+	"LIMIT 10;"
 
 queryMostSearchedCountries =\
 	"SELECT Countries.country_name AS col1, Countries.search_count AS col2 " \
 	"WHERE Countries.search_score > 0 " \
-	"ORDER BY Countries.search_score LIMIT 10;"
+	"ORDER BY Countries.search_score " \
+	"LIMIT 10;"
+
+# update user score of artist
+updateScoreArtist =\
+	"UPDATE CrowdFavorite JOIN Artist ON CrowdFavorite.artist_id = Artist.artist_id" \
+	"SET CrowdFavorite.score = CrowdFavorite.score + 1 " \
+	"WHERE Artist.artist_name= %(artist_name)s;"
+
+# update search count of country
+updateScoreCountry =\
+	"UPDATE CrowdFavorite " \
+	"SET CrowdFavorite.search_score = CrowdFavorite.search_score + 1 " \
+	"WHERE CrowdFavorite.country_name = %(country)s;"

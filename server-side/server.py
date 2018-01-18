@@ -24,7 +24,6 @@ con = mdb.connect(host='mysqlsrv.cs.tau.ac.il', db='DbMysql08', user='DbMysql08'
 @app.route('/queryOnCountry', methods=['POST', 'GET'])
 def query_on_country():
 	source_country = request.form['country']
-	print source_country
 	start_date = request.form['start_date'][:10]
 	if start_date == '':
 		start_date = date_1970_01_31
@@ -35,7 +34,10 @@ def query_on_country():
 	if source_country == '':
 		return render_template('error_or_empty_res.html',
 							   msg='You need to enter a country name before pressing submit')
-	print "start_date = " + start_date + ", end_date = " + end_date + "\n\n"
+	# update count search for country
+	cur = con.cursor(mdb.cursors.DictCursor)
+	cur.execute(updateSearchCountCountry, {'country': source_country})
+	# user query
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Top Songs':
 		col2 = 'Song'
@@ -55,7 +57,6 @@ def query_on_country():
 	if rows == 0:
 		return render_template('error_or_empty_res.html',
 							   msg='Couldn\'t find any results for country = ' + source_country + '. Please try again!')
-	print "rows = " + str(rows) + "\n"
 	return render_template('web_table_result.html', num_of_rows=rows,
                                col1_name='Artist', col2_name=col2, list_result=result)
 
@@ -63,7 +64,6 @@ def query_on_country():
 @app.route('/queryOnArtist', methods=['POST', 'GET'])
 def query_on_artist():
 	artist_name = request.form['artistName']
-	print "artistName = " + artist_name +"\n\n\\n"
 	start_date = request.form['start_date'][:10]
 	if start_date == '':
 		start_date = date_1970_01_31
@@ -74,8 +74,11 @@ def query_on_artist():
 	if artist_name == '':
 		return render_template('error_or_empty_res.html',
                                        msg='You need to enter an artist name before pressing submit')
-	print "start_date = " + start_date + ", end_date = " + end_date + "\n\n"
+	# update count search for artist
 	cur = con.cursor(mdb.cursors.DictCursor)
+	cur.execute(updateSearchCountArtist, {'country': source_country})
+	# user query
+	# cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Top Songs':
 		col2 = 'Song'
 		cur.execute(queryTopOfArtist,
@@ -145,32 +148,33 @@ def query_top_of_the_world():
                                col1_name=row_headers[0], col2_name=row_headers[1], list_result=result)
 
 
-#simple query for sanity check
-def test():
-	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute('SELECT Artist.artist_name Artist.source_country FROM Artist LIMIT 50;')
-	row_headers=[x[0] for x in cur.description] # this will extract row headers
-        #result = from_query_result_to_json(cur, row_headers, False)
-	result = cur.fetchall()
-	rows = cur.rowcount
-	return render_template('web_no_style_result.html', num_of_rows=rows,
-                               col1_name='artist', col2_name='source_country_id', list_result=result)
-
-
 @app.route('/latest_chart', methods=['POST', 'GET'])
 def latest_chart():
-        try:
-                extract_billboard_charts(1)
-        except ValueError:
-                return render_template('error_or_empty_res.html',
-                                       msg='Something went wrong :( Please try again!')    
-        cur = con.cursor(mdb.cursors.DictCursor)
+	try:
+		extract_billboard_charts(1)
+	except ValueError:
+		return render_template('error_or_empty_res.html',
+                                       msg='Something went wrong :( Please try again!')
+	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(getLatestChartDate)
-        result = cur.fetchall()
+	result = cur.fetchall()
 	rows = cur.rowcount
 	if rows != 100:
-                return render_template('error_or_empty_res.html',
-                                       msg='Couldn\'t find any results. Please try again!')        
+		return render_template('error_or_empty_res.html',
+							   msg='Couldn\'t find any results. Please try again!')
+	return render_template('web_table_result.html', num_of_rows=rows,
+                               col1_name='Artist', col2_name='Song', list_result=result)
+
+
+@app.route('/update_vote', methods=['POST', 'GET'])
+def update_vote():
+	cur = con.cursor(mdb.cursors.DictCursor)
+	cur.execute(getLatestChartDate)
+	result = cur.fetchall()
+	rows = cur.rowcount
+	if rows != 100:
+		return render_template('error_or_empty_res.html',
+							   msg='Couldn\'t find any results. Please try again!')
 	return render_template('web_table_result.html', num_of_rows=rows,
                                col1_name='Artist', col2_name='Song', list_result=result)
 
