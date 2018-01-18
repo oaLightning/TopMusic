@@ -11,7 +11,7 @@ from filler import extract_billboard_charts
 
 app = Flask(__name__)
 
-app.config['SERVER_NAME'] = 'topmusic:40666'
+app.config['SERVER_NAME'] = 'topmusic:40665'
 
 ## dd/mm/yyyy format
 def getCurrentDate():
@@ -224,8 +224,8 @@ def get_latest_chart():
 	return render_template('get_latest_chart.html', msg='blah')
 
 @app.route('/vote', methods=['POST', 'GET'])
-def get_latest_chart():
+def vote():
 	return render_template('vote.html')\
 
 if __name__ == '__main__':
-	app.run(port=40666, host="0.0.0.0", debug=True)
+	app.run(port=40665, host="0.0.0.0", debug=True)
