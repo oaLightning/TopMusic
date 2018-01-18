@@ -176,13 +176,15 @@ updateSearchCountCountry =\
 	"WHERE Countries.country_name = %(country)s;"
 
 queryMostSearchedArtists =\
-	"SELECT Artist.artist_name AS col1, Artist.search_count AS col2 " \
+	"SELECT Artist.artist_name AS col1, Artist.search_score AS col2 " \
+	"FROM Artist " \
 	"WHERE Artist.search_score > 0 " \
 	"ORDER BY Artist.search_score " \
 	"LIMIT 10;"
 
 queryMostSearchedCountries =\
-	"SELECT Countries.country_name AS col1, Countries.search_count AS col2 " \
+	"SELECT Countries.country_name AS col1, Countries.search_score AS col2 " \
+	"FROM Countries " \
 	"WHERE Countries.search_score > 0 " \
 	"ORDER BY Countries.search_score " \
 	"LIMIT 10;"
@@ -198,3 +200,19 @@ updateScoreCountry =\
 	"UPDATE CrowdFavorite " \
 	"SET CrowdFavorite.search_score = CrowdFavorite.search_score + 1 " \
 	"WHERE CrowdFavorite.country_name = %(country)s;"
+
+# update popularity score
+updatePopularityScore =\
+	"INSERT INTO CrowdFavorite (artist_id, score) " \
+	"SELECT %(score)s, artist_id " \
+	"FROM CrowdFavorite INNER JOIN Artist ON CrowdFavorite.artist_id = Artist.artist_id " \
+	"WHERE Artist.artist_name= %(artist_name)s " \
+	"ON DUPLICATE KEY UPDATE " \
+	"score = score + %(score)s;"
+
+queryMostPopularArtists =\
+	"SELECT Artist.artist_name AS col1, CrowdFavorite.score AS col2 " \
+	"FROM CrowdFavorite INNER JOIN Artist ON CrowdFavorite.artist_id = Artist.artist_id " \
+	"WHERE CrowdFavorite.score > 0 " \
+	"ORDER BY CrowdFavorite.score " \
+	"LIMIT 10;"
