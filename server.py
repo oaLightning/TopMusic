@@ -161,7 +161,7 @@ def update_vote():
 	rows = cur.rowcount
 	if rows == 0:
 		return render_template('error_or_empty_res.html',
-							   msg='Couldn\'t find any artist with by the name ' + artist_name + ' . Please try again!')
+							   msg='Couldn\'t find any artist by the name ' + artist_name + ' . Please try again!')
 	return render_template('error_or_empty_res.html',
                                        msg='Thank you for voting!')
 

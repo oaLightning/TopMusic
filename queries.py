@@ -200,6 +200,17 @@ updatePopularityScore =\
 	"ON DUPLICATE KEY UPDATE " \
 	"CrowdFavorite.score = CrowdFavorite.score + %(user_score)s;"
 
+findArtistId =\
+	"SELECT Artist.artist_id " \
+	"From Artist " \
+	"Where Artist.artist_name = %(artist_name)s);"
+
+updatePopularityScore2 =\
+	"INSERT INTO CrowdFavorite " \
+	"Values( %(artist_id)s), %(user_score)s ) " \
+	"ON DUPLICATE KEY UPDATE " \
+	"CrowdFavorite.score = CrowdFavorite.score + %(user_score)s;"
+
 # return 10 artist with the highest popularity score
 queryMostPopularArtists =\
 	"SELECT Artist.artist_name AS col1, CrowdFavorite.score AS col2 " \
