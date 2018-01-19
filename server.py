@@ -148,24 +148,6 @@ def query_top_of_the_world():
                                col1_name=row_headers[0], col2_name=row_headers[1], list_result=result)
 
 
-@app.route('/latest_chart', methods=['POST', 'GET'])
-def latest_chart():
-	try:
-		extract_billboard_charts(1)
-	except ValueError:
-		return render_template('error_or_empty_res.html',
-                                       msg='Something went wrong :( Please try again!')
-	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(getLatestChartDate)
-	result = cur.fetchall()
-	rows = cur.rowcount
-	if rows != 100:
-		return render_template('error_or_empty_res.html',
-							   msg='Couldn\'t find any results. Please try again!')
-	return render_template('web_table_result.html', num_of_rows=rows,
-                               col1_name='Artist', col2_name='Song', list_result=result)
-
-
 @app.route('/update_vote', methods=['POST', 'GET'])
 def update_vote():
 	artist_name = request.form['artistName']
@@ -186,6 +168,7 @@ def update_vote():
 
 @app.route('/show_statistics', methods=['POST', 'GET'])
 def show_statistics():
+	chosen_stats = request.form['select_bar']
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if chosen_stats == "searches_of_artists":
 		cur.execute(queryMostSearchedArtists)
