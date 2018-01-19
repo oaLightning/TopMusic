@@ -76,67 +76,73 @@
 
 
 <script src='static/Chart.min.js'></script>
-<canvas id="chart" width="600" height="400"></canvas>
+<style>
+	div.masthead {
+		padding-top: calc(6rem + 106px);
+		padding-bottom: 6rem;
+	}
+</style>
+<div class="masthead bg-primary text-white text-center">
+	<div>
+		<canvas id="chart" width="600" height="400" style="display: inline-block;"></canvas>
+	</div>
+	<div>
+	<!-- Add content here -->
+		<div class="table-responsive">
+			<table class="table">
+				<br><br><br><br><br>
+				<tr class="labels_row">
+					<td class="wider"> {{col1_name}} </td>
+					<td class="wider"> {{col2_name}} </td>
+				</tr>
+
+				<tbody>
+
+				{% for i in range( num_of_rows ) %}
+				<tr>
+
+					<td class="wider">{{list_result[i].col1 }} </td>
+					<td class="wider">{{list_result[i].col2 }} </td>
+				</tr>
+				{% endfor %}
+
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
 <script>
-    var pieData = [
-	    {
-		value: "January",
-		label: 10,
-		color : "#F7464A"
-	    }
-    ];
-
-    // get bar chart canvas
+    // get pie chart canvas
     var mychart = document.getElementById("chart").getContext("2d");
+    
+    const colors = ['green', 'yellow', 'blue', 'red', 'pink', 'purple', 'orange', 'black', 'white', 'brown'];
 
-    steps = 10
-    max = 10
     data = {
 	    datasets: [{
-		data: [10, 20, 30]
-	    }],
-	    
-	    backgroundColor: [
-		'#ff0000', '#00ff00', '#0000ff'
+		data: [
+		{% for i in range( num_of_rows ) %}
+			{{list_result[i].col2 }},
+		{% endfor %}
 		],
+		backgroundColor: [
+		{% for i in range( num_of_rows ) %}
+			colors[{{i}} % 10],
+		{% endfor %}
+		],
+	    }],
 
 	    // These labels appear in the legend and in the tooltips when hovering different arcs
 	    labels: [
-		'Red',
-		'Yellow',
-		'Blue'
+		{% for i in range( num_of_rows ) %}
+			'{{list_result[i].col1 }}',
+		{% endfor %}
 	    ]
 	};
+	
     // draw pie chart
-    new Chart(document.getElementById("chart").getContext("2d"), { type: 'pie', data });
+    new Chart(mychart, { type: 'pie', data: data, options: { responsive: false } });
 
 </script>
-
-
-
-
-
-<div class="table-responsive">
-	<table class="table">
-		<br><br><br><br><br>
-		<tr class="labels_row">
-			<td class="wider"> {{col1_name}} </td>
-			<td class="wider"> {{col2_name}} </td>
-		</tr>
-
-		<tbody>
-
-		{% for i in range( num_of_rows ) %}
-		<tr>
-
-			<td class="wider">{{list_result[i].col1 }} </td>
-			<td class="wider">{{list_result[i].col2 }} </td>
-		</tr>
-		{% endfor %}
-
-		</tbody>
-	</table>
-</div>
 
 
 
