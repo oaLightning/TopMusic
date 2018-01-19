@@ -207,19 +207,8 @@ def stats():
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(queryMostSearchedArtists)
 	result_most_searched_artists = cur.fetchall()
-	rows_most_searched_artists = cur.rowcount
-
-	# TODO: Delete me 
-	result_most_searched_artists = []
-	
-	for i in range(20):
-		result_most_searched_artists.append({'col1': 'test' + str(i), 'col2': i})
-		
-	rows_most_searched_artists = len(result_most_searched_artists)
-	# End delete me
-	
-	
-	return render_template('statistics.html', num_of_rows=rows_most_searched_artists, list_result=result_most_searched_artists)
+	rows = cur.rowcount
+	return render_template('statistics.html', num_of_rows=rows, list_result=result_most_searched_artists)
 
 
 @app.route('/', methods=['POST', 'GET'])
