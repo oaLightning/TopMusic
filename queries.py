@@ -143,15 +143,15 @@ queryBestYears =\
 
 # find artists from given country who sing on it
 querySongsOnCountry =\
-"SELECT Artist.artist_name AS col1, Songs.name AS col2 " \
-"FROM Songs INNER JOIN Artist ON Songs.artist_id = Artist.artist_id  " \
-"INNER JOIN Chart ON Songs.song_id = Chart.song_id " \
-"INNER JOIN Lyrics ON Songs.song_id = Lyrics.song_id " \
-"WHERE Songs.release_date BETWEEN %(start_date)s AND %(end_date)s " \
-"AND Chart.chart_date BETWEEN %(start_date)s AND %(end_date)s " \
-"AND MATCH(Lyrics.lyrics) AGAINST(%(country)s IN BOOLEAN MODE) " \
-"GROUP BY Artist.artist_name, Songs.name " \
-"ORDER BY sum(100-Chart.position) DESC;"
+	"SELECT Artist.artist_name AS col1, Songs.name AS col2 " \
+	"FROM Songs INNER JOIN Artist ON Songs.artist_id = Artist.artist_id  " \
+	"INNER JOIN Chart ON Songs.song_id = Chart.song_id " \
+	"INNER JOIN Lyrics ON Songs.song_id = Lyrics.song_id " \
+	"WHERE Songs.release_date BETWEEN %(start_date)s AND %(end_date)s " \
+	"AND Chart.chart_date BETWEEN %(start_date)s AND %(end_date)s " \
+	"AND MATCH(Lyrics.lyrics) AGAINST(%(country)s IN BOOLEAN MODE) " \
+	"GROUP BY Artist.artist_name, Songs.name " \
+	"ORDER BY sum(100-Chart.position) DESC;"
 
 # find week of most recent chart
 getLatestChart =\

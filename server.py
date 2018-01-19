@@ -197,10 +197,14 @@ def show_statistics():
 	cur.execute(getLatestChartDate)
 	result_most_popular_artists = cur.fetchall()
 	rows_most_popular_artists = cur.rowcount
-	return render_template('show_statistics.html',
+	return render_template('statistics.html',
 						   rows1=rows_most_searched_artists, list_result1=result_most_searched_artists,
 						   rows2=rows_most_searched_countries, list_result2=result_most_searched_countries,
-						   rows3=rows_most_popular_artists, list_result3=result_most_popular_artists,)
+						   rows3=rows_most_popular_artists, list_result3=result_most_popular_artists)
+
+@app.route('/stats', methods=['POST', 'GET'])
+def stats():
+	return render_template('statistics.html')
 
 
 @app.route('/', methods=['POST', 'GET'])

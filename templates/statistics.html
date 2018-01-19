@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!--<title>Freelancer - Start Bootstrap Theme</title>-->
+
+    <!-- Bootstrap core CSS -->
+    <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom fonts for this template -->
+    <link href="/static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href="/static/vendor/font-awesome/css/Montserrat400700.css" rel="stylesheet" type="text/css">
+    <link href="/static/vendor/font-awesome/css/Lato400italic_700italic.css" rel="stylesheet" type="text/css">
+
+    <!-- Plugin CSS -->
+    <link href="/static/vendor/magnific-popup/magnific-popup.css" rel="stylesheet" type="text/css">
+
+    <!-- Custom styles for this template -->
+    <link href="/static/css/freelancer.min.css" rel="stylesheet">
+
+<style>
+	table {
+		font-family: arial, sans-serif;
+		border-collapse: collapse;
+		width: 100%;
+	}
+
+	td, th {
+		border: 1px solid #dddddd;
+		text-align: left;
+		padding: 8px;
+	}
+
+	tr:nth-child(even) {
+		background-color: #dddddd;
+	}
+</style>
+
+</head>
+
+<body id="page-top">
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg bg-secondary fixed-top text-uppercase" id="mainNav">
+	<div class="container">
+		<a class="navbar-brand js-scroll-trigger" href="#page-top">Music Hits</a>
+		<button class="navbar-toggler navbar-toggler-right text-uppercase bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+			Menu
+			<i class="fa fa-bars"></i>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarResponsive">
+			<ul class="navbar-nav ml-auto">
+				<li class="nav-item mx-0 mx-lg-1">
+					<a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="artist_search">Search By Artist</a>
+				</li>
+				<li class="nav-item mx-0 mx-lg-1">
+					<a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="country_search">Search By Country</a>
+				</li>
+				<li class="nav-item mx-0 mx-lg-1">
+					<a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="top_100">Top 100</a>
+				</li>
+				<li class="nav-item mx-0 mx-lg-1">
+					<a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="main_page">Back To Front Page</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+</nav>
+
+
+
+<script src='static/Chart.min.js'></script>
+<canvas id="chart" width="600" height="400"></canvas>
+<script>
+    var pieData = [
+	    {
+		value: "January",
+		label: 10,
+		color : "#F7464A"
+	    }
+    ];
+
+    // get bar chart canvas
+    var mychart = document.getElementById("chart").getContext("2d");
+
+    steps = 10
+    max = 10
+    data = {
+	    datasets: [{
+		data: [10, 20, 30]
+	    }],
+	    
+	    backgroundColor: [
+		'#ff0000', '#00ff00', '#0000ff'
+		],
+
+	    // These labels appear in the legend and in the tooltips when hovering different arcs
+	    labels: [
+		'Red',
+		'Yellow',
+		'Blue'
+	    ]
+	};
+    // draw pie chart
+    new Chart(document.getElementById("chart").getContext("2d"), { type: 'pie', data });
+
+</script>
+
+
+
+
+
+<div class="table-responsive">
+	<table class="table">
+		<br><br><br><br><br>
+		<tr class="labels_row">
+			<td class="wider"> {{col1_name}} </td>
+			<td class="wider"> {{col2_name}} </td>
+		</tr>
+
+		<tbody>
+
+		{% for i in range( num_of_rows ) %}
+		<tr>
+
+			<td class="wider">{{list_result[i].col1 }} </td>
+			<td class="wider">{{list_result[i].col2 }} </td>
+		</tr>
+		{% endfor %}
+
+		</tbody>
+	</table>
+</div>
+
+
+
+<div id="divID"></div>
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="/static/vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
+
+    <!--&lt;!&ndash; Contact Form JavaScript &ndash;&gt;-->
+    <!--<script src="js/jqBootstrapValidation.js"></script>-->
+    <!--<script src="js/contact_me.js"></script>-->
+
+    <!-- Custom scripts for this template -->
+    <script src="/static/js/freelancer.min.js"></script>
+</body>
+</html>
