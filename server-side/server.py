@@ -10,8 +10,8 @@ import decimal
 from filler import extract_billboard_charts
 
 app = Flask(__name__)
-
-app.config['SERVER_NAME'] = 'topmusic:40665'
+app.debug = True
+#app.config['SERVER_NAME'] = 'topmusic:40663'
 
 ## dd/mm/yyyy format
 def getCurrentDate():
@@ -76,7 +76,7 @@ def query_on_artist():
                                        msg='You need to enter an artist name before pressing submit')
 	# update count search for artist
 	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(updateSearchCountArtist, {'country': source_country})
+	cur.execute(updateSearchCountArtist, {'artist_name': artist_name})
 	# user query
 	# cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Top Songs':
@@ -168,15 +168,20 @@ def latest_chart():
 
 @app.route('/update_vote', methods=['POST', 'GET'])
 def update_vote():
+	artist_name = request.form['artistName']
+	user_score = request.form['select_bar']
+	if artist_name == '':
+		return render_template('error_or_empty_res.html',
+							   msg='You need to enter an artist name before pressing Vote')
 	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(getLatestChartDate)
+	cur.execute(updatePopularityScore, {'artist_name' : artist_name, 'user_score' : vote})
 	result = cur.fetchall()
 	rows = cur.rowcount
-	if rows != 100:
+	if rows == 0:
 		return render_template('error_or_empty_res.html',
-							   msg='Couldn\'t find any results. Please try again!')
-	return render_template('web_table_result.html', num_of_rows=rows,
-                               col1_name='Artist', col2_name='Song', list_result=result)
+							   msg='Couldn\'t find any artist with by the name ' + artist_name + ' . Please try again!')
+	return render_template('error_or_empty_res.html',
+                                       msg='Thank you for voting!')
 
 @app.route('/show_statistics', methods=['POST', 'GET'])
 def show_statistics():
@@ -198,6 +203,11 @@ def show_statistics():
 						   rows3=rows_most_popular_artists, list_result3=result_most_popular_artists,)
 
 
+@app.route('/', methods=['POST', 'GET'])
+@app.route('/main_page', methods=['POST', 'GET'])
+def use_best_template():
+	return render_template('main_page.html')
+               
 @app.route('/country_search', methods=['POST', 'GET'])
 def use_country_search_template():
 	return render_template('country_search.html')
@@ -210,11 +220,6 @@ def use_artist_search_template():
 def use_top_100_template():
 	return render_template('top_100.html')
 
-@app.route('/', methods=['POST', 'GET'])
-@app.route('/main_page', methods=['POST', 'GET'])
-def use_best_template():
-	return render_template('main_page.html')\
-
 @app.route('/error', methods=['POST', 'GET'])
 def use_error_template():
 	return render_template('error_or_empty_res.html', msg='blah')
@@ -225,7 +230,7 @@ def get_latest_chart():
 
 @app.route('/vote', methods=['POST', 'GET'])
 def vote():
-	return render_template('vote.html')\
+	return render_template('vote.html')
 
 if __name__ == '__main__':
-	app.run(port=40665, host="0.0.0.0", debug=True)
+	app.run(port=40663, host="0.0.0.0", debug=True)

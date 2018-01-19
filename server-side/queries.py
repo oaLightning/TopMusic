@@ -167,7 +167,7 @@ getLatestChart =\
 updateSearchCountArtist =\
 	"UPDATE Artist " \
 	"SET Artist.search_score = Artist.search_score + 1 " \
-	"WHERE Artist.country_name = %(artist_name)s;"
+	"WHERE Artist.artist_name = %(artist_name)s;"
 
 # update search count of country
 updateSearchCountCountry =\
@@ -175,6 +175,7 @@ updateSearchCountCountry =\
 	"SET Countries.search_score = Countries.search_score + 1 " \
 	"WHERE Countries.country_name = %(country)s;"
 
+# return 10 most searched artists
 queryMostSearchedArtists =\
 	"SELECT Artist.artist_name AS col1, Artist.search_score AS col2 " \
 	"FROM Artist " \
@@ -182,6 +183,7 @@ queryMostSearchedArtists =\
 	"ORDER BY Artist.search_score " \
 	"LIMIT 10;"
 
+# return 10 most searched countries
 queryMostSearchedCountries =\
 	"SELECT Countries.country_name AS col1, Countries.search_score AS col2 " \
 	"FROM Countries " \
@@ -189,27 +191,16 @@ queryMostSearchedCountries =\
 	"ORDER BY Countries.search_score " \
 	"LIMIT 10;"
 
-# update user score of artist
-updateScoreArtist =\
-	"UPDATE CrowdFavorite JOIN Artist ON CrowdFavorite.artist_id = Artist.artist_id" \
-	"SET CrowdFavorite.score = CrowdFavorite.score + 1 " \
-	"WHERE Artist.artist_name= %(artist_name)s;"
-
-# update search count of country
-updateScoreCountry =\
-	"UPDATE CrowdFavorite " \
-	"SET CrowdFavorite.search_score = CrowdFavorite.search_score + 1 " \
-	"WHERE CrowdFavorite.country_name = %(country)s;"
-
 # update popularity score
 updatePopularityScore =\
 	"INSERT INTO CrowdFavorite (artist_id, score) " \
-	"SELECT %(score)s, artist_id " \
+	"SELECT Artist.artist_id, %(user_score)s " \
 	"FROM CrowdFavorite INNER JOIN Artist ON CrowdFavorite.artist_id = Artist.artist_id " \
 	"WHERE Artist.artist_name= %(artist_name)s " \
 	"ON DUPLICATE KEY UPDATE " \
-	"score = score + %(score)s;"
+	"CrowdFavorite.score = CrowdFavorite.score + %(user_score)s;"
 
+# return 10 artist with the highest popularity score
 queryMostPopularArtists =\
 	"SELECT Artist.artist_name AS col1, CrowdFavorite.score AS col2 " \
 	"FROM CrowdFavorite INNER JOIN Artist ON CrowdFavorite.artist_id = Artist.artist_id " \

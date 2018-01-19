@@ -99,7 +99,7 @@
             <div class="col-lg-8 mx-auto">
                 <!-- To configure the contact form email address, go to mail/contact_me.php and update the email address in the PHP file on line 19. -->
                 <!-- The form should work on most web servers, but if the form is not working you may need to configure your web server differently. -->
-                <form action = "/updateVote" method = "post" name="myForm" >
+                <form action = "/update_vote" method = "post" name="myForm" >
                     <!--<div class="control-group">-->
                         <!--<div class="form-group floating-label-form-group controls mb-0 pb-2">-->
                             <!--<br><br>-->
@@ -115,9 +115,9 @@
                     <div class="control-group">
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
                             <br>Enter Type Of Search : <br><br>
-                            <select name="select_bar" size="3">
-                                <option value="Like" selected>Like</option>
-                                <option value= "Dislike">Dislike</option>
+                            <select name="select_bar" size="2">
+                                <option value=1 selected>Like</option>
+                                <option value= -1>Dislike</option>
                             </select>
                         </div>
                     </div>
