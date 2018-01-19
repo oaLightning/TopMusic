@@ -176,11 +176,10 @@ def show_statistics():
 		cur.execute(queryMostSearchedCountries)
 	if chosen_stats == "user_votes":
 		cur.execute(queryMostPopularArtists)
-	cur.execute(queryMostSearchedArtists)
 	result = cur.fetchall()
 	rows = cur.rowcount
 	return render_template('statistics.html',
-						   num_of_rows=rows, list_result1=result)
+						   num_of_rows=rows, list_result=result)
 
 
 @app.route('/', methods=['POST', 'GET'])

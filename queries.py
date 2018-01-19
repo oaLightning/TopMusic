@@ -196,9 +196,9 @@ updatePopularityScore =\
 	"INSERT INTO CrowdFavorite " \
 	"Values(" \
 	"(Select Artist_id From Artist " \
-	"Where Artist.artist_name = %(artist_name)), %(user_score)) " \
+	"Where Artist.artist_name = %(artist_name)s), %(user_score)s) " \
 	"ON DUPLICATE KEY UPDATE " \
-	"CrowdFavorite.score = CrowdFavorite.score + %(user_score);"
+	"CrowdFavorite.score = CrowdFavorite.score + %(user_score)s;"
 
 # return 10 artist with the highest popularity score
 queryMostPopularArtists =\
