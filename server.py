@@ -183,32 +183,21 @@ def update_vote():
 	return render_template('error_or_empty_res.html',
                                        msg='Thank you for voting!')
 
+
 @app.route('/show_statistics', methods=['POST', 'GET'])
 def show_statistics():
 	cur = con.cursor(mdb.cursors.DictCursor)
+	if chosen_stats == "searches_of_artists":
+		cur.execute(queryMostSearchedArtists)
+	if chosen_stats == "searches_of_countries":
+		cur.execute(queryMostSearchedCountries)
+	if chosen_stats == "user_votes":
+		cur.execute(queryMostPopularArtists)
 	cur.execute(queryMostSearchedArtists)
-	result_most_searched_artists = cur.fetchall()
-	rows_most_searched_artists = cur.rowcount
-	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(queryMostSearchedCountries)
-	result_most_searched_countries = cur.fetchall()
-	rows_most_searched_countries = cur.rowcount
-	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(getLatestChartDate)
-	result_most_popular_artists = cur.fetchall()
-	rows_most_popular_artists = cur.rowcount
-	return render_template('statistics.html',
-						   rows1=rows_most_searched_artists, list_result1=result_most_searched_artists,
-						   rows2=rows_most_searched_countries, list_result2=result_most_searched_countries,
-						   rows3=rows_most_popular_artists, list_result3=result_most_popular_artists)
-
-@app.route('/stats', methods=['POST', 'GET'])
-def stats():
-	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(queryMostSearchedArtists)
-	result_most_searched_artists = cur.fetchall()
+	result = cur.fetchall()
 	rows = cur.rowcount
-	return render_template('statistics.html', num_of_rows=rows, list_result=result_most_searched_artists)
+	return render_template('statistics.html',
+						   num_of_rows=rows, list_result1=result)
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -239,6 +228,10 @@ def get_latest_chart():
 @app.route('/vote', methods=['POST', 'GET'])
 def vote():
 	return render_template('vote.html')
+
+@app.route('/stats', methods=['POST', 'GET'])
+def stats():
+	return render_template('statistics_request.html')
 
 if __name__ == '__main__':
 	app.run(port=40663, host="0.0.0.0", debug=True)

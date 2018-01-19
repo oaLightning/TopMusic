@@ -68,12 +68,12 @@
         <img class="img-fluid mb-5 d-block mx-auto" src="/static/img/note.jpg" alt="">
         <h1 class="text-uppercase mb-0">STATISTICS</h1>
         <hr class="star-light">
-        <h2 class="font-weight-light mb-0">statistics of the most serched\voted artists and countries.</h2>      
+        <h2 class="font-weight-light mb-0">statistics of the most searched\voted artists and countries.</h2>      
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <!-- To configure the contact form email address, go to mail/contact_me.php and update the email address in the PHP file on line 19. -->
                 <!-- The form should work on most web servers, but if the form is not working you may need to configure your web server differently. -->
-                <form action = "/update_vote" method = "post" name="myForm" >
+                <form action = "/show_statistics" method = "post" name="myForm" >
                     <!--<div class="control-group">-->
                         <!--<div class="form-group floating-label-form-group controls mb-0 pb-2">-->
                             <!--<br><br>-->
@@ -84,9 +84,9 @@
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
                             <br>Enter Type Of Statistics Requested On Input : <br><br>
                             <select name="select_bar" size="3">
-                                <option value="num searches" selected>Num. Searches Of Artist</option>
-                                <option value="num searches" selected>Num. Searches Of Country</option>
-				<option value="num searches" selected>Num. Votes For Artist</option>
+                                <option value="searches_of_artists" selected>Most Popular Searches of Artists</option>
+                                <option value="searches_of_countries">Most Popular Searches of Countries</option>
+								<option value="user_votes">People's Choise!</option>
                             </select>
                         </div>
                     </div>
