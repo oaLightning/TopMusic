@@ -57,6 +57,15 @@
 		<div class="collapse navbar-collapse" id="navbarResponsive">
 			<ul class="navbar-nav ml-auto">
 				<li class="nav-item mx-0 mx-lg-1">
+					<a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="artist_search">Search By Artist</a>
+				</li>
+				<li class="nav-item mx-0 mx-lg-1">
+					<a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="country_search">Search By Country</a>
+				</li>
+				<li class="nav-item mx-0 mx-lg-1">
+					<a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="top_100">Top 100</a>
+				</li>
+				<li class="nav-item mx-0 mx-lg-1">
 					<a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="main_page">Back To Front Page</a>
 				</li>
 			</ul>
@@ -65,67 +74,57 @@
 </nav>
 
 
-
-<script src='static/Chart.min.js'></script>
-<style>
-	div.masthead {
-		padding-top: calc(6rem + 106px);
-		padding-bottom: 6rem;
-	}
-</style>
-
-<div class="masthead bg-primary text-white text-center">
-        <h1 class="text-uppercase mb-0">top 10 statistics</h1>
-        <hr class="star-light">
-	<br>
-	<div>
-		<canvas id="chart" width="600" height="400" style="display: inline-block;"></canvas>
-	</div>
-	<div>
-	<!-- Add content here -->
-
-	</div>
-</div>
 <script>
-    // get pie chart canvas
+    var pieData = [
+	var colors = [ "#F7464A", "#46BFBD", "#FDB45C", "#FEDCBA","#ABCDEF", "#DDDDDD", "#ABCABC"  ]
+    {% for i in range( num_of_rows ) %}
+    {
+        value:  {{col1_name}},
+        label: "{{list_result[i].col1 }}",
+        color : "colors[0]"
+    },
+    {% endfor %}
+
+
+    ];
+
+    // get bar chart canvas
     var mychart = document.getElementById("chart").getContext("2d");
-    
-    const colors = ['green', 'yellow', 'blue', 'red', 'pink', 'purple', 'orange', 'black', 'white', 'brown'];
 
-    data = {
-	    datasets: [{
-		data: [
-		{% for i in range( num_of_rows ) %}
-			{{list_result[i].col2 }},
-		{% endfor %}
-		],
-		backgroundColor: [
-		{% for i in range( num_of_rows ) %}
-			colors[{{i}} % 10],
-		{% endfor %}
-		],
-	    }],
-
-	    // These labels appear in the legend and in the tooltips when hovering different arcs
-	    labels: [
-		{% for i in range( num_of_rows ) %}
-			'{{list_result[i].col1 }}',
-		{% endfor %}
-	    ]
-	};
-	
+    steps = 10
+    max = 10
     // draw pie chart
-    new Chart(mychart, { type: 'pie', data: data, options: { responsive: false } });
+    new Chart(document.getElementById("chart").getContext("2d")).Pie(pieData);
 
 </script>
 
 
 
-    <div class="copyright py-4 text-center text-white">
-      <div class="container">
-        <small>Copyright &copy; Data Base 2018</small>
-      </div>
-    </div>
+<div class="table-responsive">
+	<table class="table">
+		<br><br><br><br><br>
+		<tr class="labels_row">
+			<td class="wider"> {{col1_name}} </td>
+			<td class="wider"> {{col2_name}} </td>
+		</tr>
+
+		<tbody>
+
+		{% for i in range( num_of_rows ) %}
+		<tr>
+
+			<td class="wider">{{list_result[i].col1 }} </td>
+			<td class="wider">{{list_result[i].col2 }} </td>
+		</tr>
+		{% endfor %}
+
+		</tbody>
+	</table>
+</div>
+
+
+
+<div id="divID"></div>
 
     <!-- Bootstrap core JavaScript -->
     <script src="/static/vendor/jquery/jquery.min.js"></script>

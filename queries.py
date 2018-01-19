@@ -193,12 +193,12 @@ queryMostSearchedCountries =\
 
 # update popularity score
 updatePopularityScore =\
-	"INSERT INTO CrowdFavorite (artist_id, score) " \
-	"SELECT Artist.artist_id, %(user_score)s " \
-	"FROM CrowdFavorite INNER JOIN Artist ON CrowdFavorite.artist_id = Artist.artist_id " \
-	"WHERE Artist.artist_name= %(artist_name)s " \
+	"INSERT INTO CrowdFavorite " \
+	"Values(" \
+	"(Select Artist_id From Artist " \
+	"Where Artist.artist_name = %(artist_name)), %(user_score)) " \
 	"ON DUPLICATE KEY UPDATE " \
-	"CrowdFavorite.score = CrowdFavorite.score + %(user_score)s;"
+	"CrowdFavorite.score = CrowdFavorite.score + %(user_score);"
 
 # return 10 artist with the highest popularity score
 queryMostPopularArtists =\

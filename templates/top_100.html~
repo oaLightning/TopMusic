@@ -68,16 +68,16 @@
 <header class="masthead bg-primary text-white text-center">
     <div class="container">
         <img class="img-fluid mb-5 d-block mx-auto" src="/static/img/note.jpg" alt="">
-        <h1 class="text-uppercase mb-0">Search By Country</h1>
+        <h1 class="text-uppercase mb-0">Top 100</h1>
         <hr class="star-light">
-        <h2 class="font-weight-light mb-0">Search By Country Name and Possible Dates. </h2>
+        <h2 class="font-weight-light mb-0">Search By Dates</h2>
         <br><br>
         <div class="row">
             <div class="col-lg-4 ml-auto">
-                <p class="lead">Hi You! There are 3 types of searches : Best Songs Search- returns songs from start date to end date (if specified) which artist considered to appear often in billboard charts in good places.</p>
+                <p class="lead">Hi You! There are 2 types of searches : Songs Search - returns Top 100 songs from start time to end time if specified (else, of whole times).</p>
             </div>
             <div class="col-lg-4 mr-auto">
-                <p class="lead">Best Singers Search - same as  Best Songs Search but return singers instead of songs, and Patriotic Songs Search - returns songs which country's name appeared in with in specified dated (if given).</p>
+                <p class="lead">Singers Search - returns top 100  singers who are considered to be in top 100 singers from start time to end time (if not specified top 100 singers of all times).</p>
             </div>
         </div>
     </div>
@@ -88,14 +88,14 @@
 <!-- Contact Section -->
 <section id="contact">
     <div class="container">
-        <h2 class="text-center text-uppercase text-secondary mb-0">Search By Country</h2>
+        <h2 class="text-center text-uppercase text-secondary mb-0">TOP 100</h2>
         <hr class="star-dark mb-5">
 
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <!-- To configure the contact form email address, go to mail/contact_me.php and update the email address in the PHP file on line 19. -->
                 <!-- The form should work on most web servers, but if the form is not working you may need to configure your web server differently. -->
-                <form action = "/queryOnCountry" method = "post"name="myForm" >
+                <form action = "/queryTop100" method = "post" name="myForm" >
                     <!--<div class="control-group">-->
                         <!--<div class="form-group floating-label-form-group controls mb-0 pb-2">-->
                             <!--<br><br>-->
@@ -108,12 +108,12 @@
                             <!--Artist name : <input type="text" name="artistName"><br>-->
                         <!--</div>-->
                     <!--</div>-->
-                    <div class="control-group">
-                        <div class="form-control-plaintext">
-                            <br><br>
-                            Country : <input type="text" name="country"><br>
-                        </div>
-                    </div>
+                    <!--<div class="control-group">-->
+                        <!--&lt;!&ndash;<div class="form-group floating-label-form-group controls mb-0 pb-2">&ndash;&gt;-->
+                            <!--&lt;!&ndash;<br><br>&ndash;&gt;-->
+                            <!--&lt;!&ndash;Country : <input type="text" name="country"><br>&ndash;&gt;-->
+                        <!--&lt;!&ndash;</div>&ndash;&gt;-->
+                    <!--&lt;!&ndash;</div>&ndash;&gt;-->
                     <div class="control-group">
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
                             <br><br>
@@ -134,10 +134,9 @@
                     <div class="control-group">
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
                             <br>Enter Type Of Search : <br><br>
-                            <select name="select_bar" size="3">
-                                <option value="Top Songs" selected>Top Songs</option>
-                                <option value="Top Singers">Top Singers</option>
-                                <option value= "Patriotic Songs">Patriotic Songs</option>
+                            <select name="select_bar" size="2">
+                                <option value="Songs" selected>Songs</option>
+                                <option value="Singers">Singers</option>
                             </select>
                         </div>
                     </div>
@@ -145,7 +144,7 @@
                     <br>
                     <div id="success"></div>
                     <div class="form-group">
-                        <input type="submit" value="Search" class="btn btn-info" >
+                        <input type="submit" value="Search" class="btn btn-info">
                     </div>
 
                 </form>
@@ -153,16 +152,10 @@
             </div>
         </div>
     </div>
-
 </section>
-    <div class="copyright py-4 text-center text-white">
-      <div class="container">
-        <small>Copyright &copy; Data Base 2018</small>
-      </div>
-    </div>
+
 </body>
 </html>
-
 
 
 
