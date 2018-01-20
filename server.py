@@ -11,7 +11,7 @@ from filler import extract_billboard_charts
 
 app = Flask(__name__)
 app.debug = True
-#app.config['SERVER_NAME'] = 'topmusic:40663'
+#app.config['SERVER_NAME'] = 'topmusic:40662'
 
 ## dd/mm/yyyy format
 def getCurrentDate():
@@ -156,7 +156,14 @@ def update_vote():
 		return render_template('error_or_empty_res.html',
 							   msg='You need to enter an artist name before pressing Vote')
 	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(updatePopularityScore, {'artist_name' : artist_name, 'user_score' : vote})
+	cur.execute(findArtistId, {'artist_name': artist_name})
+	artist_ids = cur.fetchall()
+	if cur.fetchone() == 0:
+		return render_template('error_or_empty_res.html',
+							   msg='Couldn\'t find any artist by the name ' + artist_name + ' . Please try again!')
+	artist_id = artist_ids[0]
+	cur = con.cursor(mdb.cursors.DictCursor)
+	cur.execute(updatePopularityScore2, {'artist_id' : artist_id, 'user_score' : user_score})
 	result = cur.fetchall()
 	rows = cur.rowcount
 	if rows == 0:
@@ -216,4 +223,4 @@ def stats():
 	return render_template('statistics_request.html')
 
 if __name__ == '__main__':
-	app.run(port=40663, host="0.0.0.0", debug=True)
+	app.run(port=40662, host="0.0.0.0", debug=True)

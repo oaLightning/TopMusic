@@ -203,11 +203,11 @@ updatePopularityScore =\
 findArtistId =\
 	"SELECT Artist.artist_id " \
 	"From Artist " \
-	"Where Artist.artist_name = %(artist_name)s);"
+	"Where Artist.artist_name = %(artist_name)s;"
 
 updatePopularityScore2 =\
-	"INSERT INTO CrowdFavorite " \
-	"Values( %(artist_id)s), %(user_score)s ) " \
+	"INSERT INTO CrowdFavorite(artist_id, score) " \
+	"Values( %(artist_id)s, %(user_score)s ) " \
 	"ON DUPLICATE KEY UPDATE " \
 	"CrowdFavorite.score = CrowdFavorite.score + %(user_score)s;"
 
