@@ -1,5 +1,5 @@
 #find for given singer all the songs he sang on hismself
-querySongsOnMe =\
+querySongsOnMe2 =\
 	"SELECT Artist.artist_name AS col1, Songs.name AS col2 " \
 	"FROM Songs INNER JOIN Lyrics ON Songs.song_id = Lyrics.song_id " \
 	"INNER JOIN Artist ON Songs.artist_id = Artist.artist_id " \
@@ -7,6 +7,27 @@ querySongsOnMe =\
 	"AND Songs.release_date BETWEEN %(start_date)s AND %(end_date)s " \
 	"AND MATCH(Lyrics.lyrics) AGAINST(%(artist_name)s IN BOOLEAN MODE) " \
 	"LIMIT 100;"
+
+querySongsOnMe =\
+	"SELECT s.artist_name AS col1, s.name AS col2 " \
+	"FROM " \
+	"(" \
+	"(SELECT Artist.artist_name, Songs.song_id, Songs.name " \
+	"FROM Songs INNER JOIN Artist ON Artist.artist_id = Songs.artist_id " \
+	"WHERE Artist.artist_name = %(artist_name)s " \
+	"AND Songs.release_date BETWEEN %(start_date)s AND %(end_date)s) " \
+	"UNION " \
+	"(SELECT a2.artist_name, Songs.song_id, Songs.name " \
+	"FROM Artist AS a1, Artist AS a2, RelatedArtists, Songs " \
+	"WHERE a1.artist_name = @artist_name " \
+	"AND a1.artist_id = RelatedArtists.solo " \
+	"AND a2.artist_id = RelatedArtists.band " \
+	"AND a2.artist_id = Songs.artist_id " \
+	"AND Songs.release_date BETWEEN %(start_date)s AND %(end_date)s) " \
+	") AS s " \
+	"INNER JOIN Lyrics ON s.song_id = Lyrics.song_id " \
+	"WHERE MATCH(Lyrics.lyrics) AGAINST(%(artist_name)s IN BOOLEAN MODE) " \
+	"GROUP BY s.song_id;"
 
 #top of songs Artist for date-range including bands
 queryTopOfArtist =\
@@ -66,12 +87,12 @@ queryTopArtistsInTimeRange =\
 
 # find for given artist his best 10 years
 queryBestYears =\
-	"SELECT Artist.artist_name AS col1, YEAR(Songs.release_date)AS col2 " \
-	"FROM Artist INNER JOIN Songs ON Artist.artist_id = Songs.artist_id " \
-	"INNER JOIN Chart ON Songs.song_id = Chart.song_id " \
+	"SELECT YEAR(Chart.chart_date) AS col1, sum(100-Chart.position) AS col2 " \
+	"FROM Artist INNER JOIN Chart ON Artist.artist_id = Chart.artist_id " \
 	"WHERE Artist.artist_name = %(artist_name)s " \
+	"AND Chart.chart_date IS NOT NULL " \
 	"AND Chart.chart_date BETWEEN %(start_date)s AND %(end_date)s " \
-	"GROUP BY Artist.artist_id, YEAR(Songs.release_date) " \
+	"GROUP BY YEAR(Chart.chart_date) " \
 	"ORDER BY sum(100-Chart.position) " \
 	"LIMIT 10;"
 
