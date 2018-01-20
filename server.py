@@ -12,6 +12,7 @@ import decimal
 app = Flask(__name__)
 app.debug = True
 
+# arguments needed for connecting to the DB
 MYSQL_USER = 'DbMysql08'
 MYSQL_PASSWORD = 'DbMysql08'
 MYSQL_DB_NAME = 'DbMysql08'
@@ -22,9 +23,9 @@ def getCurrentDate():
 	return str(datetime.date.today())
 
 date_1954_01_01 = str(datetime.date(1954, 01, 01))
-#con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 
 
+# the user submitted a request for querying on a country
 @app.route('/queryOnCountry', methods=['POST', 'GET'])
 def query_on_country():
 	source_country = request.form['country']
@@ -45,11 +46,7 @@ def query_on_country():
 	con.commit()
 	# user query
 	cur = con.cursor(mdb.cursors.DictCursor)
-	if query_option == 'Top Songs':
-		col2 = 'Song'
-		cur.execute(queryTopSongsOfCountryInTimeRange,
-                            {'country':source_country, 'start_date': start_date, 'end_date': end_date})
-	elif query_option == 'Top Singers':
+	if query_option == 'Top Singers':
 		col2 = 'Score'
 		cur.execute(queryTopArtistsOfCountryInTimeRange,
                             {'country': source_country, 'start_date': start_date, 'end_date': end_date})
@@ -69,6 +66,7 @@ def query_on_country():
                                col1_name='Artist', col2_name=col2, list_result=result)
 
 
+# the user submitted a request for querying on an artist
 @app.route('/queryOnArtist', methods=['POST', 'GET'])
 def query_on_artist():
 	artist_name = request.form['artistName']
@@ -113,6 +111,7 @@ def query_on_artist():
 						   col1_name='Artist', col2_name=col2, list_result=result)
 
 
+# the user submitted an ALL TIME query
 @app.route('/queryTop100', methods=['POST', 'GET'])
 def query_top_100():
 	start_date = request.form['start_date'][:10]
@@ -144,6 +143,7 @@ def query_top_100():
                                col1_name=col1, col2_name=col2, list_result=result)
 
 
+# the user submitted a vote for an artist
 @app.route('/update_vote', methods=['POST', 'GET'])
 def update_vote():
 	artist_name = request.form['artistName']
@@ -163,6 +163,7 @@ def update_vote():
                                        msg='Thank you for voting!')
 
 
+# the user submitted a request for showing statistics
 @app.route('/show_statistics', methods=['POST', 'GET'])
 def show_statistics():
 	chosen_stats = request.form['select_bar']
@@ -182,32 +183,38 @@ def show_statistics():
 						   num_of_rows=rows, list_result=result)
 
 
+# route for main page
 @app.route('/', methods=['POST', 'GET'])
 @app.route('/main_page', methods=['POST', 'GET'])
 def use_best_template():
 	return render_template('main_page.html')
-               
+
+# route for querying based on country
 @app.route('/country_search', methods=['POST', 'GET'])
 def use_country_search_template():
 	return render_template('country_search.html')
 
+# route for querying based on artist
 @app.route('/artist_search', methods=['POST', 'GET'])
 def use_artist_search_template():
 	return render_template('artist_search.html')
 
+# route for querying on all-time data
 @app.route('/top_100', methods=['POST', 'GET'])
 def use_top_100_template():
 	return render_template('top_100.html')
 
+# route for voting for an artist
 @app.route('/vote', methods=['POST', 'GET'])
 def vote():
 	return render_template('vote.html')
 
+# route for choosing what statistics to show
 @app.route('/stats', methods=['POST', 'GET'])
 def stats():
 	return render_template('statistics_request.html')
 
+# start the server
 if __name__ == '__main__':
-	#app.run(port=40663, host="0.0.0.0", debug=True)
 	http_server = WSGIServer(('0.0.0.0', 40663), app)
 	http_server.serve_forever()
