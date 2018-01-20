@@ -66,14 +66,14 @@
 <header class="masthead bg-primary text-white text-center">
     <div class="container">
         <img class="img-fluid mb-5 d-block mx-auto" src="/static/img/note.jpg" alt="">
-        <h1 class="text-uppercase mb-0">VOTE</h1>
+        <h1 class="text-uppercase mb-0">STATISTICS</h1>
         <hr class="star-light">
-        <h2 class="font-weight-light mb-0">Like\Dislike artists, and contribute to our statistics section</h2>      
+        <h2 class="font-weight-light mb-0">statistics of the most searched\voted artists and countries.</h2>      
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <!-- To configure the contact form email address, go to mail/contact_me.php and update the email address in the PHP file on line 19. -->
                 <!-- The form should work on most web servers, but if the form is not working you may need to configure your web server differently. -->
-                <form action = "/update_vote" method = "post" name="myForm" >
+                <form action = "/show_statistics" method = "post" name="myForm" >
                     <!--<div class="control-group">-->
                         <!--<div class="form-group floating-label-form-group controls mb-0 pb-2">-->
                             <!--<br><br>-->
@@ -82,16 +82,11 @@
                     <!--</div>-->
                     <div class="control-group">
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
-                            <br><br>
-                            Artist name : <input type="text" name="artistName" style="background-color: white"><br>
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <div class="form-group floating-label-form-group controls mb-0 pb-2">
-                            <br>Enter Type Of Search : <br><br>
-                            <select name="select_bar" size="2">
-                                <option value=1 selected>Like</option>
-                                <option value= -1>Dislike</option>
+                            <br>Enter Type Of Statistics Requested On Input : <br><br>
+                            <select name="select_bar" size="3">
+                                <option value="searches_of_artists" selected>Most Popular Searches of Artists</option>
+                                <option value="searches_of_countries">Most Popular Searches of Countries</option>
+								<option value="user_votes">People's Choise!</option>
                             </select>
                         </div>
                     </div>
@@ -99,7 +94,7 @@
                     <br>
                     <div id="success"></div>
                     <div class="form-group">
-                        <input type="submit" value="Vote" class="btn btn-info" >
+                        <input type="submit" value="Show" class="btn btn-info" >
                     </div>
 
                 </form>
@@ -116,21 +111,6 @@
     </div>
 
 
-
-    <!-- Bootstrap core JavaScript  -->
-    <script src="/static/vendor/jquery/jquery.min.js"></script>
-    <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Plugin JavaScript -->
-    <script src="/static/vendor/jquery-easing/jquery.easing.min.js"></script>
-    <script src="/static/vendor/magnific-popup/jquery.magnific-popup.min.js"></script>
-
-    <!--&lt;!&ndash; Contact Form JavaScript &ndash;&gt;-->
-    <!--<script src="js/jqBootstrapValidation.js"></script>-->
-    <!--<script src="js/contact_me.js"></script>-->
-
-    <!-- Custom scripts for this template -->
-    <script src="/static/js/freelancer.min.js"></script>
 
 </body>
 </html>
