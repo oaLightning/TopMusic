@@ -42,6 +42,8 @@
 
 </head>
 
+
+
 <body id="page-top">
 
 <!-- Navigation -->
@@ -66,32 +68,75 @@
 <header class="masthead bg-primary text-white text-center">
     <div class="container">
         <img class="img-fluid mb-5 d-block mx-auto" src="/static/img/note.jpg" alt="">
-        <h1 class="text-uppercase mb-0">VOTE</h1>
+        <h1 class="text-uppercase mb-0">Search By Country</h1>
         <hr class="star-light">
-        <h2 class="font-weight-light mb-0">Like\Dislike artists, and contribute to our statistics section</h2>      
+        <h2 class="font-weight-light mb-0">Search By Country Name and Possible Dates. </h2>
+        <br><br>
+        <div class="row">
+            <div class="col-lg-4 ml-auto">
+                <p class="lead">Hi You! There are 2 types of searches : Best Singers Search- returns singers from start date to end date (if specified) which artist considered to appear often in billboard charts in good places.</p>
+            </div>
+            <div class="col-lg-4 mr-auto">
+                <p class="lead"> and Patriotic Songs Search - returns songs which country's name appeared in with in specified dated (if given).</p>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+<!-- Contact Section -->
+<section id="contact">
+    <div class="container">
+        <h2 class="text-center text-uppercase text-secondary mb-0">Search By Country</h2>
+        <hr class="star-dark mb-5">
+
         <div class="row">
             <div class="col-lg-8 mx-auto">
                 <!-- To configure the contact form email address, go to mail/contact_me.php and update the email address in the PHP file on line 19. -->
                 <!-- The form should work on most web servers, but if the form is not working you may need to configure your web server differently. -->
-                <form action = "/update_vote" method = "post" name="myForm" >
+                <form action = "/queryOnCountry" method = "post"name="myForm" >
                     <!--<div class="control-group">-->
                         <!--<div class="form-group floating-label-form-group controls mb-0 pb-2">-->
                             <!--<br><br>-->
                             <!--Song name : <input type="text" name="songName" ><br>-->
                         <!--</div>-->
                     <!--</div>-->
+                    <!--<div class="control-group">-->
+                        <!--<div class="form-group floating-label-form-group controls mb-0 pb-2">-->
+                            <!--<br><br>-->
+                            <!--Artist name : <input type="text" name="artistName"><br>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                    <div class="control-group">
+                        <div class="form-control-plaintext">
+                            <br><br>
+                            Country : <input type="text" name="country"><br>
+                        </div>
+                    </div>
                     <div class="control-group">
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
                             <br><br>
-                            Artist name : <input type="text" name="artistName" style="background-color: white"><br>
+                            Enter start date after 1954-01-01 : <br><br>
+                            <input type="date" name="start_date" min="1954-01-01" value="" max="2018-01-20"><br><br>
+
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <div class="form-group floating-label-form-group controls mb-0 pb-2">
+                            <br><br>
+                            Enter end date before 2018-01-20 : <br><br>
+                            <input type="date" name="end_date" min="1954-01-01" value="" max="2018-01-20"><br><br>
+
+
                         </div>
                     </div>
                     <div class="control-group">
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
                             <br>Enter Type Of Search : <br><br>
                             <select name="select_bar" size="2">
-                                <option value=1 selected>Like</option>
-                                <option value= -1>Dislike</option>
+                                <option value="Top Singers">Top Singers</option>
+                                <option value= "Patriotic Songs">Patriotic Songs</option>
                             </select>
                         </div>
                     </div>
@@ -99,7 +144,7 @@
                     <br>
                     <div id="success"></div>
                     <div class="form-group">
-                        <input type="submit" value="Vote" class="btn btn-info" >
+                        <input type="submit" value="Search" class="btn btn-info" >
                     </div>
 
                 </form>
@@ -107,17 +152,15 @@
             </div>
         </div>
     </div>
-</header>
 
+</section>
     <div class="copyright py-4 text-center text-white">
       <div class="container">
         <small>Copyright &copy; Data Base 2018</small>
       </div>
     </div>
 
-
-
-    <!-- Bootstrap core JavaScript  -->
+    <!-- Bootstrap core JavaScript -->
     <script src="/static/vendor/jquery/jquery.min.js"></script>
     <script src="/static/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
 
@@ -131,7 +174,6 @@
 
     <!-- Custom scripts for this template -->
     <script src="/static/js/freelancer.min.js"></script>
-
 </body>
 </html>
 

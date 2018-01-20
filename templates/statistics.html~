@@ -1,6 +1,8 @@
-<html>
+<!DOCTYPE html>
 <html lang="en">
-<head>
+
+  <head>
+
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
@@ -21,6 +23,7 @@
 
     <!-- Custom styles for this template -->
     <link href="/static/css/freelancer.min.css" rel="stylesheet">
+
 <style>
 	table {
 		font-family: arial, sans-serif;
@@ -45,40 +48,78 @@
 
 <!-- Navigation -->
 <nav class="navbar navbar-expand-lg bg-secondary fixed-top text-uppercase" id="mainNav">
-    <div class="container">
-        <a class="navbar-brand js-scroll-trigger" href="#page-top">Music Hits</a>
-        <button class="navbar-toggler navbar-toggler-right text-uppercase bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-            Menu
-            <i class="fa fa-bars"></i>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarResponsive">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item mx-0 mx-lg-1">
-                    <a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="main_page">Back To Front Page</a>
-                </li>
-            </ul>
-        </div>
-    </div>
+	<div class="container">
+		<a class="navbar-brand js-scroll-trigger" href="#page-top">Music Hits</a>
+		<button class="navbar-toggler navbar-toggler-right text-uppercase bg-primary text-white rounded" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+			Menu
+			<i class="fa fa-bars"></i>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarResponsive">
+			<ul class="navbar-nav ml-auto">
+				<li class="nav-item mx-0 mx-lg-1">
+					<a class="nav-link py-3 px-0 px-lg-3 rounded js-scroll-trigger" href="main_page">Back To Front Page</a>
+				</li>
+			</ul>
+		</div>
+	</div>
 </nav>
 
-<!-- Header -->
-<header class="masthead bg-primary text-white text-center">
-    <div class="container">
-        <!--<img class="img-fluid mb-5 d-block mx-auto" src="/static/img/note.jpg" alt="">-->
-        <h1 class="text-uppercase mb-0"> {{msg}} </h1>
+
+
+<script src='static/Chart.min.js'></script>
+<style>
+	div.masthead {
+		padding-top: calc(6rem + 106px);
+		padding-bottom: 6rem;
+	}
+</style>
+
+<div class="masthead bg-primary text-white text-center">
+        <h1 class="text-uppercase mb-0">top 10 statistics</h1>
         <hr class="star-light">
-        <!--<h2 class="font-weight-light mb-0">Search By Artist Name and Possible Dates. </h2>-->
-        <!--<br><br>-->
-        <!--<div class="row">-->
-            <!--<div class="col-lg-4 ml-auto">-->
-                <!--<p class="lead">Hi You! There are 3 types of searches : Best Year Search- returns years from start date to end date (if specified) which are considered to be the "best" of the artist (best is considered by billboard charts appearances through time).</p>-->
-            <!--</div>-->
-            <!--<div class="col-lg-4 mr-auto">-->
-                <!--<p class="lead">Best Songs Search - returns best songs of specified artist (from given dates if specified if not we return top 100 songs) and Self Adored Songs Search - returns songs which artist's name appeared in with in specified dated (if given).</p>-->
-            <!--</div>-->
-        <!--</div>-->
-    </div>
-</header>
+	<br>
+	<div>
+		<canvas id="chart" width="600" height="400" style="display: inline-block;"></canvas>
+	</div>
+	<div>
+	<!-- Add content here -->
+
+	</div>
+</div>
+<script>
+    // get pie chart canvas
+    var mychart = document.getElementById("chart").getContext("2d");
+    
+    const colors = ['green', 'yellow', 'blue', 'red', 'pink', 'purple', 'orange', 'black', 'white', 'brown'];
+
+    data = {
+	    datasets: [{
+		data: [
+		{% for i in range( num_of_rows ) %}
+			{{list_result[i].col2 }},
+		{% endfor %}
+		],
+		backgroundColor: [
+		{% for i in range( num_of_rows ) %}
+			colors[{{i}} % 10],
+		{% endfor %}
+		],
+	    }],
+
+	    // These labels appear in the legend and in the tooltips when hovering different arcs
+	    labels: [
+		{% for i in range( num_of_rows ) %}
+			'{{list_result[i].col1 }}',
+		{% endfor %}
+	    ]
+	};
+	
+    // draw pie chart
+    new Chart(mychart, { type: 'pie', data: data, options: { responsive: false } });
+
+</script>
+
+
 
     <div class="copyright py-4 text-center text-white">
       <div class="container">
