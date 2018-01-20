@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, render_template, redirect, request, url_for
+# from gevent.wsgi import WSGIServer
 import datetime
 import json
 import os
@@ -11,14 +12,19 @@ from filler import extract_billboard_charts
 
 app = Flask(__name__)
 app.debug = True
-#app.config['SERVER_NAME'] = 'topmusic:40662'
+#app.config['SERVER_NAME'] = 'topmusic:40663'
+
+MYSQL_USER = 'DbMysql08'
+MYSQL_PASSWORD = 'DbMysql08'
+MYSQL_DB_NAME = 'DbMysql08'
+MYSQL_HOST = 'mysqlsrv.cs.tau.ac.il'
 
 ## dd/mm/yyyy format
 def getCurrentDate():
 	return str(datetime.date.today())
 
 date_1970_01_31 = str(datetime.date(1970, 12, 31))
-con = mdb.connect(host='mysqlsrv.cs.tau.ac.il', db='DbMysql08', user='DbMysql08', passwd='DbMysql08')
+#con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 
 
 @app.route('/queryOnCountry', methods=['POST', 'GET'])
@@ -35,8 +41,10 @@ def query_on_country():
 		return render_template('error_or_empty_res.html',
 							   msg='You need to enter a country name before pressing submit')
 	# update count search for country
+	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(updateSearchCountCountry, {'country': source_country})
+	con.commit()
 	# user query
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Top Songs':
@@ -54,6 +62,8 @@ def query_on_country():
                             {'country': source_country, 'start_date': start_date, 'end_date': end_date})
 	result = cur.fetchall()
 	rows = cur.rowcount
+	cur.close()
+	con.close()
 	if rows == 0:
 		return render_template('error_or_empty_res.html',
 							   msg='Couldn\'t find any results for country = ' + source_country + '. Please try again!')
@@ -75,8 +85,9 @@ def query_on_artist():
 		return render_template('error_or_empty_res.html',
                                        msg='You need to enter an artist name before pressing submit')
 	# update count search for artist
+	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(updateSearchCountArtist, {'artist_name': artist_name})
+	con.commit()
 	# user query
 	# cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Top Songs':
@@ -94,6 +105,8 @@ def query_on_artist():
                             {'artist_name': artist_name, 'start_date': start_date, 'end_date': end_date})
 	result = cur.fetchall()
 	rows = cur.rowcount
+	cur.close()
+	con.close()
 	if rows == 0:
 		return render_template('error_or_empty_res.html',
                                        msg='Couldn\'t find any results. for artist = ' + artist_name + '. Please try again!')
@@ -110,7 +123,7 @@ def query_top_100():
 	if end_date == '':
 		end_date = getCurrentDate()
 	query_option = request.form['select_bar']
-	print "start_date = " + start_date + ", end_date = " + end_date + "\n\n"
+	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Songs':
 		cur.execute(queryTopSongsInTimeRange, {'start_date': start_date, 'end_date': end_date})
@@ -125,8 +138,9 @@ def query_top_100():
 	rows = cur.rowcount
 	if rows == 0:
 		return render_template('error_or_empty_res.html',
-                                       msg='Couldn\'t find any results. Please try again!')        
-	print "rows = " + str(rows) + "\n"
+                                       msg='Couldn\'t find any results. Please try again!')
+	cur.close()
+	con.close()
 	return render_template('web_table_result.html', num_of_rows=rows,
                                col1_name=col1, col2_name=col2, list_result=result)
 
@@ -136,11 +150,14 @@ def query_top_of_the_world():
 	year = request.form['year']
 	if year == '':
 		year = getCurrentDate().year
+	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(queryAtTheTopOfTheGame, {'year':year})
 	row_headers=[x[0] for x in cur.description] # this will extract row headers
 	result = cur.fetchall()
 	rows = cur.rowcount
+	cur.close()
+	con.close()
 	if rows == 0:
 		return render_template('error_or_empty_res.html',
                                        msg='Couldn\'t find any results. Please try again!')        
@@ -155,6 +172,7 @@ def update_vote():
 	if artist_name == '':
 		return render_template('error_or_empty_res.html',
 							   msg='You need to enter an artist name before pressing Vote')
+	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(findArtistId, {'artist_name': artist_name})
 	artist_ids = cur.fetchall()
@@ -169,6 +187,9 @@ def update_vote():
 	if rows == 0:
 		return render_template('error_or_empty_res.html',
 							   msg='Couldn\'t find any artist by the name ' + artist_name + ' . Please try again!')
+	con.commit()
+	cur.close()
+	con.close()
 	return render_template('error_or_empty_res.html',
                                        msg='Thank you for voting!')
 
@@ -176,6 +197,7 @@ def update_vote():
 @app.route('/show_statistics', methods=['POST', 'GET'])
 def show_statistics():
 	chosen_stats = request.form['select_bar']
+	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if chosen_stats == "searches_of_artists":
 		cur.execute(queryMostSearchedArtists)
@@ -185,6 +207,8 @@ def show_statistics():
 		cur.execute(queryMostPopularArtists)
 	result = cur.fetchall()
 	rows = cur.rowcount
+	cur.close()
+	con.close()
 	return render_template('statistics.html',
 						   num_of_rows=rows, list_result=result)
 
@@ -223,4 +247,6 @@ def stats():
 	return render_template('statistics_request.html')
 
 if __name__ == '__main__':
-	app.run(port=40662, host="0.0.0.0", debug=True)
+	#app.run(port=40663, host="0.0.0.0", debug=True)
+	http_server = WSGIServer(('0.0.0.0', 40663), app)
+	http_server.serve_forever()
