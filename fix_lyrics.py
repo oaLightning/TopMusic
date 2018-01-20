@@ -3,6 +3,11 @@ import re
 import MySQLdb
 import pickle
 
+MYSQL_USER = 'DbMysql08'
+MYSQL_PASSWORD = 'DbMysql08'
+MYSQL_DB_NAME = 'DbMysql08'
+MYSQL_HOST = 'mysqlsrv.cs.tau.ac.il'
+
 @contextmanager
 def db_cursor(commit_in_the_end):
     '''
