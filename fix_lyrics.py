@@ -36,8 +36,12 @@ def fix_db_lyrics():
         print 'Got ' + str(cursor.rowcount) + ' rows'
     with db_cursor(True) as cursor:
         for row in rows:
+            original = row[1]
             fixed_row = re.sub('^Paroles de la chanson .+ par .+$', '', row[1], re.MULTILINE)
-            full_line = update % (row[0], fixed_row)
+            if fixed_row != original:
+                print 'Changing lyrics for song id ' + str(row[0])
+                full_line = update % (row[0], fixed_row)
+                cursor.execute(full_line)
 
 if '__main__' == __name__:
     dump_results('backup.pck')
