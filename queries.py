@@ -115,26 +115,6 @@ queryMostSearchedCountries =\
 	"ORDER BY Countries.search_score " \
 	"LIMIT 10;"
 
-# update popularity score
-updatePopularityScore =\
-	"INSERT INTO CrowdFavorite " \
-	"Values(" \
-	"(Select Artist_id From Artist " \
-	"Where Artist.artist_name = %(artist_name)s), %(user_score)s) " \
-	"ON DUPLICATE KEY UPDATE " \
-	"CrowdFavorite.score = CrowdFavorite.score + %(user_score)s;"
-
-findArtistId =\
-	"SELECT Artist.artist_id AS col1 " \
-	"From Artist " \
-	"Where Artist.artist_name = %(artist_name)s;"
-
-updatePopularityScore2 =\
-	"INSERT INTO CrowdFavorite(artist_id, score) " \
-	"Values( %(artist_id)s, %(user_score)s ) " \
-	"ON DUPLICATE KEY UPDATE " \
-	"CrowdFavorite.score = CrowdFavorite.score + %(user_score)s;"
-
 # return 10 artist with the highest popularity score
 queryMostPopularArtists =\
 	"SELECT Artist.artist_name AS col1, CrowdFavorite.score AS col2 " \

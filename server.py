@@ -9,11 +9,9 @@ import MySQLdb as mdb
 from queries import *
 import decimal
 from filler import extract_billboard_charts
-#from create_schema_final import *
 
 app = Flask(__name__)
 app.debug = True
-#app.config['SERVER_NAME'] = 'topmusic:40663'
 
 MYSQL_USER = 'DbMysql08'
 MYSQL_PASSWORD = 'DbMysql08'
