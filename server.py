@@ -9,6 +9,7 @@ import MySQLdb as mdb
 from queries import *
 import decimal
 from filler import extract_billboard_charts
+#from create_schema_final import *
 
 app = Flask(__name__)
 app.debug = True
@@ -155,25 +156,9 @@ def update_vote():
 							   msg='You need to enter an artist name before pressing Vote')
 	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(findArtistId, {'artist_name': artist_name})
-	artist_ids = cur.fetchone()
-	print 'hi you\n\n'
-	if artist_ids == None:
-		error_msg = 'Couldn\'t find any artist by the name ' + artist_name + ' . Please try again!'
-		print error_msg
-		return render_template('error_or_empty_res.html', msg=error_msg)
-	#print str(artist_ids)
-	print "\n\n\n"
-	#print str(artist_ids[0])
-	artist_id = artist_ids[0][col1]
-	#print artist_id
-	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(updatePopularityScore2, {'artist_id' : artist_id, 'user_score' : user_score})
-	result = cur.fetchall()
-	rows = cur.rowcount
-	if rows == 0:
-		return render_template('error_or_empty_res.html',
-							   msg='Couldn\'t find any artist by the name ' + artist_name + ' . Please try again!')
+	# cur.execute(UpdateVote, {'artist_name': artist_name, 'user_score' : user_score})
+	args = [artist_name, user_score]
+	cur.callproc('UpdateVote', args)
 	con.commit()
 	cur.close()
 	con.close()

@@ -72,9 +72,9 @@ create procedure UpdateVote(
 begin 
     if exists (select artist_name from Artist where artist_name_in = Artist.artist_name) then 
 		INSERT INTO CrowdFavorite(artist_id, score)  
-		Values( (select artist_id from Artist where Artist.artist_name = artist_name_in), score )  
+		Values( (select artist_id from Artist where Artist.artist_name = artist_name), user_score )  
 		ON DUPLICATE KEY UPDATE  
-		CrowdFavorite.score = CrowdFavorite.score + score;
+		CrowdFavorite.score = CrowdFavorite.score + user_score;
 	End if;
 End //
 
