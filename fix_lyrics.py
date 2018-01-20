@@ -45,7 +45,7 @@ def fix_db_lyrics():
             fixed_row = re.sub('^Paroles de la chanson .+ par .+\r\n', '', original, re.MULTILINE)
             if fixed_row != original:
                 print 'Changing lyrics for song id ' + str(row[0])
-                full_line = update % (row[0], fixed_row)
+                full_line = update.format(row[0], fixed_row)
                 cursor.execute(full_line)
 
 if '__main__' == __name__:
