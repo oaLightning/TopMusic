@@ -93,32 +93,18 @@
 
         <div class="row">
             <div class="col-lg-8 mx-auto">
-                <!-- To configure the contact form email address, go to mail/contact_me.php and update the email address in the PHP file on line 19. -->
-                <!-- The form should work on most web servers, but if the form is not working you may need to configure your web server differently. -->
                 <form action = "/queryOnCountry" method = "post"name="myForm" >
-                    <!--<div class="control-group">-->
-                        <!--<div class="form-group floating-label-form-group controls mb-0 pb-2">-->
-                            <!--<br><br>-->
-                            <!--Song name : <input type="text" name="songName" ><br>-->
-                        <!--</div>-->
-                    <!--</div>-->
-                    <!--<div class="control-group">-->
-                        <!--<div class="form-group floating-label-form-group controls mb-0 pb-2">-->
-                            <!--<br><br>-->
-                            <!--Artist name : <input type="text" name="artistName"><br>-->
-                        <!--</div>-->
-                    <!--</div>-->
                     <div class="control-group">
                         <div class="form-control-plaintext">
                             <br><br>
-                            Country : <input type="text" name="country"><br>
+                            Country : <input type="text" name="country" pattern="[A-Za-z \-]"><br>
                         </div>
                     </div>
                     <div class="control-group">
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
                             <br><br>
                             Enter start date after 1954-01-01 : <br><br>
-                            <input type="date" name="start_date" min="1954-01-01" value="" max="2018-01-20"><br><br>
+                            <input type="date" name="start_date" min="1954-01-01" value="" max="2018-01-20" pattern="[0-9\-]"><br><br>
 
                         </div>
                     </div>
@@ -126,7 +112,7 @@
                         <div class="form-group floating-label-form-group controls mb-0 pb-2">
                             <br><br>
                             Enter end date before 2018-01-20 : <br><br>
-                            <input type="date" name="end_date" min="1954-01-01" value="" max="2018-01-20"><br><br>
+                            <input type="date" name="end_date" min="1954-01-01" value="" max="2018-01-20" pattern="[0-9\-]"><br><br>
 
 
                         </div>
