@@ -170,17 +170,20 @@ def show_statistics():
 	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if chosen_stats == "searches_of_artists":
+		stats_msg = 'Distribution of the number of searches of artists. Presents only the top 10 most searched artists.'
 		cur.execute(queryMostSearchedArtists)
 	if chosen_stats == "searches_of_countries":
+		stats_msg = 'Distribution of the number of searches of countries. Presents only the top 10 most searched countries.'
 		cur.execute(queryMostSearchedCountries)
 	if chosen_stats == "user_votes":
+		stats_msg = 'Distribution of the popularity of artists per users vote. Presents only the top 10 artists.'
 		cur.execute(queryMostPopularArtists)
 	result = cur.fetchall()
 	rows = cur.rowcount
 	cur.close()
 	con.close()
 	return render_template('statistics.html',
-						   num_of_rows=rows, list_result=result)
+						   num_of_rows=rows, list_result=result, msg=stats_msg)
 
 
 # route for main page
