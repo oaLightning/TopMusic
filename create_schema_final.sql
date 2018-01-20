@@ -64,4 +64,18 @@ CREATE TABLE CrowdFavorite (
     PRIMARY KEY (artist_id)
 );
 
+
+DELIMITER //
+create procedure UpdateVote(
+    in artist_name_in varchar(256),
+    in score INT)
+begin 
+    if exists (select artist_name from Artist where artist_name_in = Artist.artist_name) then 
+		INSERT INTO CrowdFavorite(artist_id, score)  
+		Values( (select artist_id from Artist where Artist.artist_name = artist_name_in), score )  
+		ON DUPLICATE KEY UPDATE  
+		CrowdFavorite.score = CrowdFavorite.score + score;
+	End if;
+End //
+
 INSERT INTO Countries (country_id, country_name) VALUES (-1, "Unknown Country");
