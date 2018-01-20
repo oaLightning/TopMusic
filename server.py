@@ -159,7 +159,8 @@ def update_vote():
 	if cur.fetchone() == 0:
 		return render_template('error_or_empty_res.html',
 							   msg='Couldn\'t find any artist by the name ' + artist_name + ' . Please try again!')
-	artist_id = artist_ids[0]
+	artist_id = str(artist_ids[0].col1)
+	print artist_id
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(updatePopularityScore2, {'artist_id' : artist_id, 'user_score' : user_score})
 	result = cur.fetchall()

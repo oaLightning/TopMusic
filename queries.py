@@ -125,7 +125,7 @@ updatePopularityScore =\
 	"CrowdFavorite.score = CrowdFavorite.score + %(user_score)s;"
 
 findArtistId =\
-	"SELECT Artist.artist_id " \
+	"SELECT Artist.artist_id AS col1 " \
 	"From Artist " \
 	"Where Artist.artist_name = %(artist_name)s;"
 
