@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Flask, render_template, redirect, request, url_for
-# from gevent.wsgi import WSGIServer
+from gevent.wsgi import WSGIServer
 import datetime
 import json
 import os
@@ -145,26 +145,6 @@ def query_top_100():
                                col1_name=col1, col2_name=col2, list_result=result)
 
 
-@app.route('/queryTopOfTheWorld', methods=['POST', 'GET'])
-def query_top_of_the_world():
-	year = request.form['year']
-	if year == '':
-		year = getCurrentDate().year
-	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
-	cur = con.cursor(mdb.cursors.DictCursor)
-	cur.execute(queryAtTheTopOfTheGame, {'year':year})
-	row_headers=[x[0] for x in cur.description] # this will extract row headers
-	result = cur.fetchall()
-	rows = cur.rowcount
-	cur.close()
-	con.close()
-	if rows == 0:
-		return render_template('error_or_empty_res.html',
-                                       msg='Couldn\'t find any results. Please try again!')        
-	return render_template('web_table_result.html', num_of_rows=rows,
-                               col1_name=row_headers[0], col2_name=row_headers[1], list_result=result)
-
-
 @app.route('/update_vote', methods=['POST', 'GET'])
 def update_vote():
 	artist_name = request.form['artistName']
@@ -229,14 +209,6 @@ def use_artist_search_template():
 @app.route('/top_100', methods=['POST', 'GET'])
 def use_top_100_template():
 	return render_template('top_100.html')
-
-@app.route('/error', methods=['POST', 'GET'])
-def use_error_template():
-	return render_template('error_or_empty_res.html', msg='blah')
-
-@app.route('/get_latest_chart', methods=['POST', 'GET'])
-def get_latest_chart():
-	return render_template('get_latest_chart.html', msg='blah')
 
 @app.route('/vote', methods=['POST', 'GET'])
 def vote():
