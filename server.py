@@ -8,7 +8,6 @@ os.environ['PYTHON_EGG_CACHE'] = "./python_eggs"
 import MySQLdb as mdb
 from queries import *
 import decimal
-from filler import extract_billboard_charts
 
 app = Flask(__name__)
 app.debug = True
