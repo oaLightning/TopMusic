@@ -23,7 +23,7 @@ MYSQL_HOST = 'mysqlsrv.cs.tau.ac.il'
 def getCurrentDate():
 	return str(datetime.date.today())
 
-date_1970_01_31 = str(datetime.date(1970, 12, 31))
+date_1954_01_01 = str(datetime.date(1954, 01, 01))
 #con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 
 
@@ -32,7 +32,7 @@ def query_on_country():
 	source_country = request.form['country']
 	start_date = request.form['start_date'][:10]
 	if start_date == '':
-		start_date = date_1970_01_31
+		start_date = date_1954_01_01
 	end_date = request.form['end_date'][:10]
 	if end_date == '':
 		end_date = getCurrentDate()
@@ -76,7 +76,7 @@ def query_on_artist():
 	artist_name = request.form['artistName']
 	start_date = request.form['start_date'][:10]
 	if start_date == '':
-		start_date = date_1970_01_31
+		start_date = date_1954_01_01
 	end_date = request.form['end_date'][:10]
 	if end_date == '':
 		end_date = getCurrentDate()
@@ -87,9 +87,10 @@ def query_on_artist():
 	# update count search for artist
 	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
+	cur.execute(updateSearchCountArtist, {'artist_name': artist_name})
 	con.commit()
 	# user query
-	# cur = con.cursor(mdb.cursors.DictCursor)
+	cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Top Songs':
 		col2 = 'Song'
 		cur.execute(queryTopOfArtist,
@@ -118,7 +119,7 @@ def query_on_artist():
 def query_top_100():
 	start_date = request.form['start_date'][:10]
 	if start_date == '':
-		start_date = date_1970_01_31
+		start_date = date_1954_01_01
 	end_date = request.form['end_date'][:10]
 	if end_date == '':
 		end_date = getCurrentDate()
@@ -155,12 +156,17 @@ def update_vote():
 	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(findArtistId, {'artist_name': artist_name})
-	artist_ids = cur.fetchall()
-	if cur.fetchone() == 0:
-		return render_template('error_or_empty_res.html',
-							   msg='Couldn\'t find any artist by the name ' + artist_name + ' . Please try again!')
-	artist_id = str(artist_ids[0].col1)
-	print artist_id
+	artist_ids = cur.fetchone()
+	print 'hi you\n\n'
+	if artist_ids == None:
+		error_msg = 'Couldn\'t find any artist by the name ' + artist_name + ' . Please try again!'
+		print error_msg
+		return render_template('error_or_empty_res.html', msg=error_msg)
+	#print str(artist_ids)
+	print "\n\n\n"
+	#print str(artist_ids[0])
+	artist_id = artist_ids[0][col1]
+	#print artist_id
 	cur = con.cursor(mdb.cursors.DictCursor)
 	cur.execute(updatePopularityScore2, {'artist_id' : artist_id, 'user_score' : user_score})
 	result = cur.fetchall()
