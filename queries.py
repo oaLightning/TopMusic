@@ -1,4 +1,4 @@
-#find for given singer all the songs he/she sang on hismself/herself, even as part of a band
+#find for a given singer all the songs he/she sang on hismself/herself, even as part of a band
 querySongsOnMe =\
 	"SELECT s.artist_name AS col1, s.name AS col2 " \
 	"FROM " \
@@ -63,7 +63,6 @@ queryTopSongsInTimeRange =\
 	"SELECT Artist.artist_name AS col1, Songs.name AS col2 " \
 	"FROM Songs INNER JOIN Artist ON Songs.artist_id = Artist.artist_id " \
 	"INNER JOIN Chart ON Songs.song_id = Chart.song_id " \
-	"INNER JOIN Countries ON Artist.source_country = Countries.country_id " \
 	"WHERE Chart.chart_date IS NOT NULL " \
 	"AND Chart.chart_date BETWEEN %(start_date)s AND %(end_date)s " \
 	"GROUP BY Songs.song_id " \
