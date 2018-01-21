@@ -59,9 +59,9 @@ CREATE INDEX related_band_idx ON RelatedArtists(band);
 CREATE TABLE Lyrics (
 	song_id INT,
 	lyrics VARCHAR(21840),
-	PRIMARY KEY (song_id),
+	FULLTEXT idx (lyrics),
 	FOREIGN KEY (song_id) REFERENCES Songs(song_id)
-);
+) ENGINE=MyISAM;
 
 
 CREATE TABLE CrowdFavorite (
@@ -73,13 +73,13 @@ CREATE TABLE CrowdFavorite (
 DELIMITER //
 create procedure UpdateVote(
     in artist_name_in varchar(256),
-    in score INT)
+    in user_score INT)
 begin 
     if exists (select artist_name from Artist where artist_name_in = Artist.artist_name) then 
 		INSERT INTO CrowdFavorite(artist_id, score)  
-		Values( (select artist_id from Artist where Artist.artist_name = artist_name_in), score )  
+		Values( (select artist_id from Artist where Artist.artist_name = artist_name_in), user_score )  
 		ON DUPLICATE KEY UPDATE  
-		CrowdFavorite.score = CrowdFavorite.score + score;
+		CrowdFavorite.score = CrowdFavorite.score + user_score;
 	End if;
 End //
 
