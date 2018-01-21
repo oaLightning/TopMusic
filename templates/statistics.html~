@@ -65,34 +65,56 @@
 </nav>
 
 
-<header class="masthead bg-primary text-white text-center">
+
+<script src='static/Chart.min.js'></script>
+<style>
+	div.masthead {
+		padding-top: calc(6rem + 106px);
+		padding-bottom: 6rem;
+	}
+</style>
 
 <div class="masthead bg-primary text-white text-center">
-        <h1 class="text-uppercase mb-0">RESULTS:</h1>
+        <h1 class="text-uppercase mb-0">top 10 statistics</h1>
         <hr class="star-light">
+	<h2 class="text-uppercase mb-0"> {{msg}} </h2>
 	<br>
-<div class="table-responsive">
-	<table class="table">
-		<tr class="labels_row">
-			<th class="wider"> {{col1_name}} </th>
-			<th class="wider"> {{col2_name}} </th>
-		</tr>
+	<div>
+		<canvas id="chart" width="600" height="400" style="display: inline-block;"></canvas>
+	</div>
+</div>
+<script>
+    // get pie chart canvas
+    var mychart = document.getElementById("chart").getContext("2d");
+    
+    const colors = ['green', 'yellow', 'blue', 'red', 'pink', 'purple', 'orange', 'black', 'white', 'brown'];
 
-		<tbody>
-
+    data = {
+	    datasets: [{
+		data: [
 		{% for i in range( num_of_rows ) %}
-		<tr>
-
-			<td class="wider">{{list_result[i].col1 }} </td>
-			<td class="wider">{{list_result[i].col2 }} </td>
-		</tr>
+			{{list_result[i].col2 }},
 		{% endfor %}
+		],
+		backgroundColor: [
+		{% for i in range( num_of_rows ) %}
+			colors[{{i}} % 10],
+		{% endfor %}
+		],
+	    }],
 
-		</tbody>
-	</table>
-</div>
-</div>
-</header>
+	    // These labels appear in the legend and in the tooltips when hovering different arcs
+	    labels: [
+		{% for i in range( num_of_rows ) %}
+			'{{list_result[i].col1 }}',
+		{% endfor %}
+	    ]
+	};
+	
+    // draw pie chart
+    new Chart(mychart, { type: 'pie', data: data, options: { responsive: false } });
+
+</script>
 
 
 
