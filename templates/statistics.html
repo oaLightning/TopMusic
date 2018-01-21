@@ -72,6 +72,11 @@
 		padding-top: calc(6rem + 106px);
 		padding-bottom: 6rem;
 	}
+    canvas{
+        width: 100% !important;
+        max-width: 800px;
+        height: auto !important;
+    }
 </style>
 
 <div class="masthead bg-primary text-white text-center">
@@ -112,7 +117,7 @@
 	};
 	
     // draw pie chart
-    new Chart(mychart, { type: 'pie', data: data, options: { responsive: false } });
+    new Chart(mychart, { type: 'pie', data: data, options: { responsive: true } });
 
 </script>
 
