@@ -2,7 +2,6 @@
 from flask import Flask, render_template, redirect, request, url_for
 from gevent.wsgi import WSGIServer
 import datetime
-import json
 import os
 os.environ['PYTHON_EGG_CACHE'] = "./python_eggs"
 import MySQLdb as mdb
@@ -88,16 +87,19 @@ def query_on_artist():
 	# user query
 	cur = con.cursor(mdb.cursors.DictCursor)
 	if query_option == 'Top Songs':
-		col2 = 'Song'
-		cur.execute(queryTopOfArtist,
+        col1 = 'Artist'
+        col2 = 'Song'
+        cur.execute(queryTopOfArtist,
                             {'artist_name':artist_name, 'start_date': start_date, 'end_date': end_date})
 	elif query_option == 'Best Year':
-		col2 = 'Year'
+		col1 = 'Year'
+        col2 = 'score'
 		cur.execute(queryBestYears,
                             {'artist_name': artist_name, 'start_date': start_date, 'end_date': end_date})
 	else:
 		# query_option == 'Self adored Songs'
-		col2 = 'Song'
+        col1 = 'Artist'
+        col2 = 'Song'
 		cur.execute(querySongsOnMe,
                             {'artist_name': artist_name, 'start_date': start_date, 'end_date': end_date})
 	result = cur.fetchall()
@@ -108,7 +110,7 @@ def query_on_artist():
 		return render_template('error_or_empty_res.html',
                                        msg='Couldn\'t find any results. for artist = ' + artist_name + '. Please try again!')
 	return render_template('web_table_result.html', num_of_rows=rows,
-						   col1_name='Artist', col2_name=col2, list_result=result)
+						   col1_name=col1, col2_name=col2, list_result=result)
 
 
 # the user submitted an ALL TIME query
@@ -169,6 +171,7 @@ def show_statistics():
 	chosen_stats = request.form['select_bar']
 	con = mdb.connect(user=MYSQL_USER, db=MYSQL_DB_NAME, passwd=MYSQL_PASSWORD, host=MYSQL_HOST)
 	cur = con.cursor(mdb.cursors.DictCursor)
+	stats_msg = ''
 	if chosen_stats == "searches_of_artists":
 		stats_msg = 'Distribution of top 10 most searched artists.'
 		cur.execute(queryMostSearchedArtists)
