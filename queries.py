@@ -123,7 +123,7 @@ queryMostSearchedArtists =\
 	"SELECT Artist.artist_name AS col1, Artist.search_score AS col2 " \
 	"FROM Artist " \
 	"WHERE Artist.search_score > 0 " \
-	"ORDER BY Artist.search_score " \
+	"ORDER BY Artist.search_score DESC " \
 	"LIMIT 10;"
 
 # return 10 most searched countries
@@ -131,7 +131,7 @@ queryMostSearchedCountries =\
 	"SELECT Countries.country_name AS col1, Countries.search_score AS col2 " \
 	"FROM Countries " \
 	"WHERE Countries.search_score > 0 " \
-	"ORDER BY Countries.search_score " \
+	"ORDER BY Countries.search_score DESC " \
 	"LIMIT 10;"
 
 # return 10 artist with the highest popularity score
@@ -139,5 +139,5 @@ queryMostPopularArtists =\
 	"SELECT Artist.artist_name AS col1, CrowdFavorite.score AS col2 " \
 	"FROM CrowdFavorite INNER JOIN Artist ON CrowdFavorite.artist_id = Artist.artist_id " \
 	"WHERE CrowdFavorite.score > 0 " \
-	"ORDER BY CrowdFavorite.score " \
+	"ORDER BY CrowdFavorite.score DESC " \
 	"LIMIT 10;"

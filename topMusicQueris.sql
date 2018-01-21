@@ -140,3 +140,17 @@ WHERE a1.artist_id = a2.artist_id
 AND YEAR(Chart.chart_date) < @current_year
 GROUP BY YEAR(Chart.chart_date)
 );
+
+# most searched artists 
+# queryMostSearchedArtists =\
+SELECT Artist.artist_name AS col1, Artist.search_score AS col2
+FROM Artist
+WHERE Artist.search_score > 0
+ORDER BY Artist.search_score DESC
+LIMIT 20;
+
+SELECT Artist.artist_name AS col1, Artist.artist_id, Artist.search_score AS col2
+FROM Artist
+WHERE Artist.search_score > 0
+ORDER BY Artist.search_score DESC
+LIMIT 20;
