@@ -17,6 +17,9 @@ CREATE TABLE Songs (
 	UNIQUE KEY (artist_id, name)
 );
 
+CREATE INDEX song_id_idx on Songs(song_id);
+CREATE INDEX artist_id_idx on Songs(artist_id);
+
 CREATE TABLE Artist (
 	artist_id INT NOT NULL AUTO_INCREMENT,
 	artist_name VARCHAR(50) UNIQUE,
@@ -27,7 +30,10 @@ CREATE TABLE Artist (
 	PRIMARY KEY (artist_id),
 	FOREIGN KEY (source_country) REFERENCES Countries(country_id)
 );
+
 CREATE INDEX mb_id_idx on Artist(mb_id);
+CREATE INDEX artist_name_idx on Artist(artist_name);
+CREATE INDEX artist_id_idx on Artist(artist_id);
 
 CREATE TABLE Chart (
 	chart_date DATE,
@@ -64,18 +70,19 @@ CREATE TABLE CrowdFavorite (
     PRIMARY KEY (artist_id)
 );
 
-
 DELIMITER //
 create procedure UpdateVote(
     in artist_name_in varchar(256),
-    in score INT)
+    in user_score INT)
 begin 
     if exists (select artist_name from Artist where artist_name_in = Artist.artist_name) then 
 		INSERT INTO CrowdFavorite(artist_id, score)  
-		Values( (select artist_id from Artist where Artist.artist_name = artist_name), user_score )  
+		Values( (select artist_id from Artist where Artist.artist_name = artist_name_in), user_score )  
 		ON DUPLICATE KEY UPDATE  
 		CrowdFavorite.score = CrowdFavorite.score + user_score;
 	End if;
 End //
 
 INSERT INTO Countries (country_id, country_name) VALUES (-1, "Unknown Country");
+
+
