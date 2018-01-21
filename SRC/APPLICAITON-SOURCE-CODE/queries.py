@@ -81,16 +81,6 @@ queryTopArtistsInTimeRange =\
 	"LIMIT 100;"
 
 # find for given artist his best 10 years
-queryBestYears2 =\
-	"SELECT YEAR(Chart.chart_date) AS col1, sum(100-Chart.position) AS col2 " \
-	"FROM Artist INNER JOIN Chart ON Artist.artist_id = Chart.artist_id " \
-	"WHERE Artist.artist_name = %(artist_name)s " \
-	"AND Chart.chart_date IS NOT NULL " \
-	"AND Chart.chart_date BETWEEN %(start_date)s AND %(end_date)s " \
-	"GROUP BY YEAR(Chart.chart_date) " \
-	"ORDER BY sum(100-Chart.position) " \
-	"LIMIT 10;"
-
 queryBestYears =\
 	"SELECT YEAR(Chart.chart_date) AS col1, sum(100-Chart.position) AS col2 " \
 	"FROM " \
